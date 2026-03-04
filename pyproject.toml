@@ -1,0 +1,29 @@
+[project]
+name = "promptshield"
+version = "0.1.0"
+description = "A local security tool that protects LLM applications from prompt injection and jailbreak attempts."
+authors = [
+    { name = "Guillaume Lauret", email = "guillaume-lauret.dev@proton.me" }
+]
+license = { text = "MIT" }
+requires-python = ">=3.11"
+classifiers = [
+    "Natural Language :: English",
+]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "chromadb",
+    "httpx",
+    "pydantic",
+    "pydantic-settings",
+    "typer",
+    "pyyaml",
+]
+
+[project.scripts]
+promptshield = "promptshield.cli.main:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
