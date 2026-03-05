@@ -54,8 +54,10 @@ Multilingual support is planned for future versions.
 
 ## Installation
 
+> ⚠️ PyPI release coming soon. Install directly from GitHub 
+> in the meantime:
 ```bash
-pip install promptshield
+pip install git+https://github.com/guildxlrt/PromptShield.git
 ```
 
 ## Configuration

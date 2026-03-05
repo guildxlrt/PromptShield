@@ -67,6 +67,7 @@ Developers can run a local FastAPI server to consume PromptShield via HTTP from 
 - **FR-005**: Configuration MUST be resolved in the order: CLI flags > Environment Variables > `.promptshield.yaml`.
 - **FR-006**: The detection pipeline MUST run entirely locally (Regex -> ephemeral ChromaDB -> LLM provider via API).
 - **FR-007**: System MUST NOT include any billing, API key management, or multi-user architecture.
+- **FR-008**: PyPI publication is deferred — not part of v1 scope. Current distribution method: git install via GitHub URL. Note that `pyproject.toml` is ready for PyPI when needed.
 
 ### Key Entities
 

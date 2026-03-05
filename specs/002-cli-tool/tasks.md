@@ -43,3 +43,6 @@
 
 - [x] T018 Create `README.md` and `.promptshield.yaml.example` demonstrating how to use the library, CLI, and server.
 - [x] T019 Final run of `pytest` and code linting (`ruff check .`) to ensure correctness.
+- [ ] T020 Publish package to PyPI
+  - Status: deferred
+  - Reason: PyPI publication postponed — git install used for now
