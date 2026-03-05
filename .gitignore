@@ -27,11 +27,9 @@ env/
 *.swo
 .DS_Store
 
-# Gemini agent workspace
+# Agent workspace
 .gemini/
 GEMINI.md
-
-# Speckit working files
 .specify
 
 # Tests & coverage
