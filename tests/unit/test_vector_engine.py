@@ -22,8 +22,6 @@ def reset_globals():
     # Reset global state before each test
     ve._index = None
     ve._metadata = []
-    # If using chroma currently, it might not have these.
-    # We just ensure they are handled properly if they exist.
     if not hasattr(ve, '_index'):
         ve._index = None
     if not hasattr(ve, '_metadata'):
@@ -41,20 +39,22 @@ async def test_embed_raises_on_http_error(config):
         with pytest.raises(httpx.HTTPStatusError):
             await _embed(["test text"], config)
 
-def test_build_index_vectors_are_normalized(config):
+@pytest.mark.asyncio
+async def test_build_index_vectors_are_normalized(config):
     # Mock _embed to return unnormalized vectors
     async def mock_embed(texts, config):
         # return unnormalized vector [2.0, 0.0]
         return np.array([[2.0, 0.0]] * len(texts), dtype=np.float32)
         
     with patch('promptshield.detection.vector_engine._embed', new=mock_embed):
-        index, metadata = _build_index(config)
+        index, metadata = await _build_index(config)
         assert len(index) > 0
         assert len(index) == len(metadata)
         norms = np.linalg.norm(index, axis=1)
         np.testing.assert_allclose(norms, 1.0, rtol=1e-5)
 
-def test_scan_vector_blocked_above_threshold(config):
+@pytest.mark.asyncio
+async def test_scan_vector_blocked_above_threshold(config):
     async def mock_embed(texts, config):
         if texts == ["malicious prompt"]:
             return np.array([[1.0, 0.0, 0.0]], dtype=np.float32)
@@ -84,12 +84,13 @@ def test_scan_vector_blocked_above_threshold(config):
         ]
         mock_get_index.return_value = (mock_index, mock_metadata)
         
-        verdict, score, threat_type = scan_vector("malicious prompt", config)
+        verdict, score, threat_type = await scan_vector("malicious prompt", config)
         assert verdict == "blocked"
         assert score > config.detection.confidence_threshold
         assert threat_type == "jailbreak"
 
-def test_scan_vector_safe_below_threshold(config):
+@pytest.mark.asyncio
+async def test_scan_vector_safe_below_threshold(config):
     with patch('promptshield.detection.vector_engine._get_index') as mock_get_index, \
          patch('promptshield.detection.vector_engine._embed') as mock_embed:
         
@@ -109,33 +110,34 @@ def test_scan_vector_safe_below_threshold(config):
             return np.array([[1.0, 0.0, 0.0]], dtype=np.float32)
         mock_embed.side_effect = mock_embed_func
         
-        verdict, score, threat_type = scan_vector("safe prompt", config)
+        verdict, score, threat_type = await scan_vector("safe prompt", config)
         assert verdict == "safe"
         assert score < config.detection.confidence_threshold
         assert threat_type == "none"
 
-def test_get_index_thread_safe_single_build(config):
+@pytest.mark.asyncio
+async def test_get_index_thread_safe_single_build(config):
     build_count = 0
     
-    def mock_build_index(cfg):
+    async def mock_build_index(cfg):
         nonlocal build_count
         build_count += 1
-        return np.array([[1.0]]), [{"threat_type": "test", "id": "1"}]
+        return np.array([[1.0]], dtype=np.float32), [{"threat_type": "test", "id": "1"}]
         
     with patch('promptshield.detection.vector_engine._build_index', new=mock_build_index):
-        def worker():
-            _get_index(config)
+        async def worker():
+            await _get_index(config)
             
-        threads = [threading.Thread(target=worker) for _ in range(10)]
-        for t in threads: t.start()
-        for t in threads: t.join()
+        # Run multiple concurrent workers
+        await asyncio.gather(*(worker() for _ in range(10)))
         
         assert build_count == 1
         assert ve._index is not None
 
-def test_scan_vector_does_not_fail_open(config):
+@pytest.mark.asyncio
+async def test_scan_vector_does_not_fail_open(config):
     with patch('promptshield.detection.vector_engine._get_index') as mock_get_index:
-        mock_get_index.side_effect = Exception("ChromaDB is down or API is down")
+        mock_get_index.side_effect = Exception("API is down")
         
         with pytest.raises(Exception):
-            scan_vector("some prompt", config)
+            await scan_vector("some prompt", config)

@@ -71,12 +71,12 @@ async def scan_vector(prompt: str, config: ShieldConfig) -> tuple[str, float, st
 
     scores = index @ query_vec
 
-    # top 3
-    top_k_indices = np.argsort(scores)[-3:]
-    avg_score = float(scores[top_k_indices].mean())
+    # top-1
+    best_idx = int(np.argmax(scores))
+    best_score = float(scores[best_idx])
 
-    if avg_score > config.detection.confidence_threshold:
-        threat_type = metadata[top_k_indices[-1]]["threat_type"]
-        return "blocked", avg_score, threat_type
+    if best_score > config.detection.confidence_threshold:
+        threat_type = metadata[best_idx]["threat_type"]
+        return "blocked", best_score, threat_type
 
-    return "safe", avg_score, "none"
+    return "safe", best_score, "none"
