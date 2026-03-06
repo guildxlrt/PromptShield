@@ -1,101 +1,82 @@
 import json
-import asyncio
-import concurrent.futures
+import threading
 from pathlib import Path
+
 import httpx
-import chromadb
-from chromadb.api.types import Documents, EmbeddingFunction, Embeddings
-from typing import Tuple
+import numpy as np
+
 from promptshield.config import ShieldConfig
 
-class ProviderEmbeddingFunction(EmbeddingFunction):
-    def __init__(self, config: ShieldConfig):
-        self.config = config
+_index: np.ndarray | None = None
+_metadata: list[dict] = []
+_lock = threading.Lock()
 
-    def __call__(self, input: Documents) -> Embeddings:
-        if not self.config.provider.api_key or self.config.provider.api_key == "your_key_here":
-            raise ValueError("API key is not configured.")
 
-        async def fetch():
-            async with httpx.AsyncClient(timeout=10) as client:
-                response = await client.post(
-                    f"{self.config.provider.base_url}/embeddings",
-                    headers={
-                        "Authorization": f"Bearer {self.config.provider.api_key}",
-                        "Content-Type": "application/json"
-                    },
-                    json={"model": self.config.provider.embedding_model, "input": input}
-                )
-                if response.status_code != 200:
-                    return [[0.0]*1536 for _ in input]
-                data = response.json()
-                return [item["embedding"] for item in data["data"]]
-
-        try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            loop = None
-
-        if loop and loop.is_running():
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                return pool.submit(asyncio.run, fetch()).result()
-        else:
-            return asyncio.run(fetch())
-
-def get_chroma_collection(config: ShieldConfig):
-    client = chromadb.EphemeralClient()
-    embed_fn = ProviderEmbeddingFunction(config=config)
-    collection = client.get_or_create_collection(
-        name="malicious_prompts",
-        embedding_function=embed_fn
-    )
-    
-    # Reseed on every start
-    if collection.count() == 0:
-        patterns_file = Path(__file__).parent.parent / "data" / "attack_patterns.json"
-        if patterns_file.exists():
-            with open(patterns_file, "r") as f:
-                try:
-                    data = json.load(f)
-                    examples = data.get("embedding_examples", [])
-                    if examples:
-                        documents = [ex["text"] for ex in examples]
-                        metadatas = [{"threat_type": ex["category"]} for ex in examples]
-                        ids = [ex["id"] for ex in examples]
-                        collection.add(
-                            documents=documents,
-                            metadatas=metadatas,
-                            ids=ids
-                        )
-                except Exception as e:
-                    print(f"Warning: Failed to seed ChromaDB: {e}")
-                    
-    return collection
-
-_collection_cache = None
-
-def scan_vector(prompt: str, config: ShieldConfig) -> Tuple[str, float, str]:
-    """Returns (verdict, confidence, threat_type)"""
-    global _collection_cache
-    if _collection_cache is None:
-        _collection_cache = get_chroma_collection(config)
-        
-    try:
-        results = _collection_cache.query(
-            query_texts=[prompt],
-            n_results=1
+async def _embed(texts: list[str], config: ShieldConfig) -> np.ndarray:
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"{config.provider.base_url}/embeddings",
+            headers={"Authorization": f"Bearer {config.provider.api_key}"},
+            json={"model": config.provider.embedding_model, "input": texts},
         )
-    except Exception:
+        response.raise_for_status()
+        data = response.json()
+        embeddings = [item["embedding"] for item in data["data"]]
+        return np.array(embeddings, dtype=np.float32)
+
+
+async def _build_index(config: ShieldConfig) -> tuple[np.ndarray, list[dict]]:
+    path = Path(__file__).parent.parent / "data" / "attack_patterns.json"
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    examples = data.get("embedding_examples", [])
+    if not examples:
+        return np.array([]), []
+
+    texts = [ex["text"] for ex in examples]
+    metadata_list = [{"threat_type": ex["category"], "id": ex["id"]} for ex in examples]
+
+    vecs = await _embed(texts, config)
+
+    # L2-normalize
+    norms = np.linalg.norm(vecs, axis=1, keepdims=True)
+    norms[norms == 0] = 1
+    vecs /= norms
+
+    return vecs, metadata_list
+
+
+async def _get_index(config: ShieldConfig) -> tuple[np.ndarray, list[dict]]:
+    global _index, _metadata
+    if _index is None:
+        with _lock:
+            if _index is None:
+                _index, _metadata = await _build_index(config)
+    return _index, _metadata
+
+
+async def scan_vector(prompt: str, config: ShieldConfig) -> tuple[str, float, str]:
+    index, metadata = await _get_index(config)
+
+    if len(index) == 0:
         return "safe", 0.0, "none"
-    
-    if not results['distances'] or not results['distances'][0]:
-        return "safe", 0.0, "none"
-        
-    distance = results['distances'][0][0]
-    confidence = max(0.0, 1.0 - distance)
-    
-    if confidence > config.detection.confidence_threshold:
-        threat_type = results['metadatas'][0][0].get('threat_type', 'jailbreak')
-        return "blocked", confidence, threat_type
-        
-    return "safe", confidence, "none"
+
+    query_vec = (await _embed([prompt], config))[0]
+
+    # L2-normalize query
+    query_norm = np.linalg.norm(query_vec)
+    if query_norm > 0:
+        query_vec /= query_norm
+
+    scores = index @ query_vec
+
+    # top 3
+    top_k_indices = np.argsort(scores)[-3:]
+    avg_score = float(scores[top_k_indices].mean())
+
+    if avg_score > config.detection.confidence_threshold:
+        threat_type = metadata[top_k_indices[-1]]["threat_type"]
+        return "blocked", avg_score, threat_type
+
+    return "safe", avg_score, "none"

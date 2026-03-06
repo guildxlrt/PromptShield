@@ -13,12 +13,12 @@ classifiers = [
 dependencies = [
     "fastapi",
     "uvicorn",
-    "chromadb",
     "httpx",
     "pydantic",
     "pydantic-settings",
     "typer",
     "pyyaml",
+    "numpy",
 ]
 
 [project.scripts]

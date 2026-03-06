@@ -1,10 +1,14 @@
+from typing import Any, Dict, Optional
+
+from promptshield.config import ShieldConfig
+from promptshield.detection.llm_engine import scan_llm
 from promptshield.detection.regex_engine import scan_regex
 from promptshield.detection.vector_engine import scan_vector
-from promptshield.detection.llm_engine import scan_llm
-from promptshield.config import ShieldConfig
-from typing import Optional, Dict, Any
 
-async def run_pipeline(prompt: str, config: ShieldConfig, context: Optional[str] = None) -> Dict[str, Any]:
+
+async def run_pipeline(
+    prompt: str, config: ShieldConfig, context: Optional[str] = None
+) -> Dict[str, Any]:
     # 1. Regex Match (instant, free)
     verdict, confidence, threat = scan_regex(prompt)
     if verdict == "blocked":
@@ -14,11 +18,11 @@ async def run_pipeline(prompt: str, config: ShieldConfig, context: Optional[str]
             "threat_type": threat,
             "reason": f"Matched malicious regex pattern: {threat}",
             "sanitized_prompt": "[BLOCKED]",
-            "pipeline_layer": "regex"
+            "pipeline_layer": "regex",
         }
-        
+
     # 2. Vector Similarity (fast, local)
-    verdict, confidence, threat = scan_vector(prompt, config)
+    verdict, confidence, threat = await scan_vector(prompt, config)
     if verdict == "blocked" and confidence > config.detection.confidence_threshold:
         return {
             "verdict": "blocked",
@@ -26,9 +30,9 @@ async def run_pipeline(prompt: str, config: ShieldConfig, context: Optional[str]
             "threat_type": threat,
             "reason": f"Semantic similarity to known attack vector: {threat}",
             "sanitized_prompt": "[BLOCKED]",
-            "pipeline_layer": "embedding"
+            "pipeline_layer": "embedding",
         }
-        
+
     # 3. LLM Fallback (expensive, slow) - if confidence is low (< threshold)
     if confidence < config.detection.confidence_threshold:
         verdict, llm_conf, threat = await scan_llm(prompt, config, context)
@@ -38,9 +42,9 @@ async def run_pipeline(prompt: str, config: ShieldConfig, context: Optional[str]
             "threat_type": threat,
             "reason": f"LLM evaluation result: {verdict}",
             "sanitized_prompt": "[BLOCKED]" if verdict == "blocked" else prompt,
-            "pipeline_layer": "llm"
+            "pipeline_layer": "llm",
         }
-        
+
     # Otherwise return safe
     return {
         "verdict": "safe",
@@ -48,5 +52,5 @@ async def run_pipeline(prompt: str, config: ShieldConfig, context: Optional[str]
         "threat_type": "none",
         "reason": "No malicious patterns detected",
         "sanitized_prompt": prompt,
-        "pipeline_layer": "embedding"
+        "pipeline_layer": "embedding",
     }
