@@ -48,3 +48,6 @@ chroma_db/
 # Distribution
 dist/
 build/
+
+# Others
+*lock.*

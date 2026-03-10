@@ -11,6 +11,11 @@ entirely on your machine, uses a tiered detection pipeline
 (regex → semantic similarity → LLM fallback), and brings your own 
 API key — no data ever leaves your infrastructure.
 
+## Check the demo
+
+[Demo](https://guillaume-lauret.dev/projects/promptshield)
+
+
 ## How It Works
 ```
 Your App                      PromptShield                  Your LLM
