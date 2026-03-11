@@ -45,7 +45,7 @@ Endpoint to scan a user prompt for malicious intent.
 ```json
 {
   "scan_id": "string (UUID v4)",
-  "verdict": "string (Enum: 'safe', 'blocked', 'review')",
+  "verdict": "string (Enum: 'pass', 'blocked', 'flag')",
   "threat_type": "string (e.g. 'jailbreak', 'prompt_injection', or 'none')",
   "confidence": 0.95,
   "reason": "string (Explanation of the verdict)",

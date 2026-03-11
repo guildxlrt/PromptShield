@@ -13,7 +13,7 @@ Represents the incoming JSON payload to `/v1/scan`.
 Represents the JSON payload returned to the caller.
 
 - `scan_id` (string/UUID): A unique identifier for audit purposes.
-- `verdict` (string): Enum: `safe`, `blocked`, `review`.
+- `verdict` (string): Enum: `pass`, `blocked`, `flag`.
 - `threat_type` (string, optional): Specific class of threat detected (e.g., `jailbreak`, `prompt_injection`, `none`).
 - `confidence` (float): A value between 0.0 and 1.0 indicating the certainty of the verdict.
 - `reason` (string): Textual description explaining why the verdict was reached.

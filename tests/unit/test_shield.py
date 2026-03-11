@@ -1,5 +1,7 @@
-from promptshield import Shield, ShieldConfig
 from unittest.mock import patch
+
+from promptshield import Shield, ShieldConfig
+
 
 def test_shield_scan_regex_blocked():
     shield = Shield()
@@ -9,13 +11,15 @@ def test_shield_scan_regex_blocked():
     assert result.pipeline_layer == "regex"
     assert result.confidence == 1.0
 
-@patch('promptshield.detection.pipeline.scan_vector')
+
+@patch("promptshield.detection.pipeline.scan_vector")
 def test_shield_scan_safe(mock_vector):
-    mock_vector.return_value = ("safe", 0.9, "none")
+    mock_vector.return_value = ("pass", 0.9, "none")
     shield = Shield()
     result = shield.scan(prompt="Hello, how are you?")
-    assert result.verdict == "safe"
+    assert result.verdict == "pass"
     assert result.threat_type == "none"
+
 
 def test_config_parsing(monkeypatch):
     monkeypatch.setenv("PROMPTSHIELD_API_KEY", "test-key-123")

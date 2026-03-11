@@ -45,9 +45,9 @@ async def run_pipeline(
             "pipeline_layer": "llm",
         }
 
-    # Otherwise return safe
+    # Otherwise return pass
     return {
-        "verdict": "safe",
+        "verdict": "pass",
         "confidence": confidence,
         "threat_type": "none",
         "reason": "No malicious patterns detected",

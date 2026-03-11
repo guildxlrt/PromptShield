@@ -80,5 +80,5 @@ Developers can run a local FastAPI server to consume PromptShield via HTTP from 
 
 - **SC-001**: Programmatic scans taking the regex/embedding path resolve in < 500ms.
 - **SC-002**: Programmatic scans requiring the LLM fallback path resolve in < 2s.
-- **SC-003**: CLI returns a clean exit code 0 for safe prompts and 1 for blocked prompts.
+- **SC-003**: CLI returns a clean exit code 0 for pass prompts and 1 for blocked prompts.
 - **SC-004**: The package can be installed and successfully executed on a clean Python 3.11 environment with minimal dependencies.

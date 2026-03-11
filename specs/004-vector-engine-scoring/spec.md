@@ -12,7 +12,7 @@ The vector engine should correctly classify inputs based on the nearest neighbor
 **Acceptance Scenarios**:
 1. **Given** a malicious prompt, **When** it is scanned, **Then** it is evaluated against the single best matching vector score.
 2. **Given** a prompt, **When** scored, **Then** the best score is compared to the recalibrated confidence threshold.
-3. **Given** a known attack prompt, **Then** it should score higher than a safe prompt.
+3. **Given** a known attack prompt, **Then** it should score higher than a pass prompt.
 
 ## Requirements
 - **FR-001**: Change `scan_vector` to use the top-1 score instead of averaging the top-3.

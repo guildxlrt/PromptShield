@@ -1,9 +1,10 @@
-import re
 import json
+import re
 from pathlib import Path
 from typing import Tuple
 
 PATTERNS = []
+
 
 def load_patterns():
     global PATTERNS
@@ -14,10 +15,15 @@ def load_patterns():
                 with open(patterns_file, "r") as f:
                     data = json.load(f)
                     for item in data.get("regex_patterns", []):
-                        flags = re.IGNORECASE if item.get("flags") == "IGNORECASE" else 0
-                        PATTERNS.append((item.get("pattern"), item.get("category"), flags))
+                        flags = (
+                            re.IGNORECASE if item.get("flags") == "IGNORECASE" else 0
+                        )
+                        PATTERNS.append(
+                            (item.get("pattern"), item.get("category"), flags)
+                        )
             except Exception as e:
                 print(f"Warning: Failed to load regex patterns: {e}")
+
 
 def scan_regex(prompt: str) -> Tuple[str, float, str]:
     """Returns (verdict, confidence, threat_type)"""
@@ -25,5 +31,5 @@ def scan_regex(prompt: str) -> Tuple[str, float, str]:
     for pattern, threat_type, flags in PATTERNS:
         if re.search(pattern, prompt, flags):
             return "blocked", 1.0, threat_type
-            
-    return "safe", 0.0, "none"
+
+    return "pass", 0.0, "none"

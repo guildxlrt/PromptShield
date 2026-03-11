@@ -42,7 +42,7 @@ Your App                      PromptShield                  Your LLM
    │   pipeline_layer }            │                            │
    │ ◀─────────────────────────────┘                            │
    │                                                            ▲
-   │ ✓ if safe ▶────────────────────────────────────────────────┘
+   │ ✓ if pass ▶────────────────────────────────────────────────┘
    │ 
    │ ⊘ if blocked >> handle locally, LLM never called         
 ```
@@ -145,7 +145,7 @@ PromptShield runs the entire detection pipeline locally on your machine, applyin
 
 | Field | Type | Description |
 |---|---|---|
-| `verdict` | `safe` / `blocked` / `review` | Primary decision |
+| `verdict` | `pass` / `blocked` / `flag` | Primary decision |
 | `threat_type` | `prompt_injection` / `jailbreak` / `none` | Attack category |
 | `confidence` | float 0–1 | Detection confidence |
 | `reason` | string | Human-readable explanation |
@@ -155,8 +155,8 @@ PromptShield runs the entire detection pipeline locally on your machine, applyin
 
 ## CI/CD Integration
 
-PromptShield returns exit code `0` for safe prompts and `1` for 
-blocked or review verdicts — making it usable directly in pipelines:
+PromptShield returns exit code `0` for pass prompts and `1` for 
+blocked or flag verdicts — making it usable directly in pipelines:
 ```yaml
 # GitHub Actions example
 - name: Scan user input

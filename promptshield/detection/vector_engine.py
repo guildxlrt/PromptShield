@@ -60,7 +60,7 @@ async def scan_vector(prompt: str, config: ShieldConfig) -> tuple[str, float, st
     index, metadata = await _get_index(config)
 
     if len(index) == 0:
-        return "safe", 0.0, "none"
+        return "pass", 0.0, "none"
 
     query_vec = (await _embed([prompt], config))[0]
 
@@ -79,4 +79,4 @@ async def scan_vector(prompt: str, config: ShieldConfig) -> tuple[str, float, st
         threat_type = metadata[best_idx]["threat_type"]
         return "blocked", best_score, threat_type
 
-    return "safe", best_score, "none"
+    return "pass", best_score, "none"

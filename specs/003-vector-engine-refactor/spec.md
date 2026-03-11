@@ -17,4 +17,4 @@ The system needs to perform vector search without the heavy ChromaDB dependency.
 ## Requirements
 - **FR-001**: Remove all ChromaDB dependencies and usage.
 - **FR-002**: Implement `_embed`, `_build_index`, `_get_index`, and `scan_vector` in `vector_engine.py` using NumPy.
-- **FR-003**: Do not catch broad exceptions and return "safe". Let exceptions propagate.
+- **FR-003**: Do not catch broad exceptions and return "pass". Let exceptions propagate.

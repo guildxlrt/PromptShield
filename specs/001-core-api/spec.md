@@ -17,7 +17,7 @@ Developers integrate the scan endpoint into their application backend to filter 
 
 **Acceptance Scenarios**:
 
-1. **Given** a developer with a valid API key, **When** they send a safe prompt, **Then** the API returns a verdict of "safe" within 500ms.
+1. **Given** a developer with a valid API key, **When** they send a pass prompt, **Then** the API returns a verdict of "pass" within 500ms.
 2. **Given** a developer with a valid API key, **When** they send an obvious prompt injection attempt (e.g. "ignore previous instructions"), **Then** the API returns a verdict of "blocked" with a threat_type and reason within 500ms.
 3. **Given** a developer with a valid API key, **When** they send an ambiguous prompt, **Then** the API routes it to the LLM analyzer and returns a verdict within 2 seconds.
 
@@ -73,7 +73,7 @@ Developers can instantly generate a free tier API key by providing a valid email
 ### Edge Cases
 
 - **Payload Size**: System MUST reject prompts exceeding 10,000 characters with a 422 Unprocessable Entity error.
-- **Provider Timeout**: If OpenRouter API times out (5s limit), system MUST return a `review` verdict with `confidence: 0.5` and `reason: "Detection provider timeout"`.
+- **Provider Timeout**: If OpenRouter API times out (5s limit), system MUST return a `flag` verdict with `confidence: 0.5` and `reason: "Detection provider timeout"`.
 - **Vector Search Failure**: If ChromaDB returns zero results, the pipeline MUST proceed to the LLM fallback if regex analysis is inconclusive.
 - **API Security**: The `sanitized_prompt` field MUST contain `"[BLOCKED]"` when a prompt is determined to be completely malicious.
 
@@ -83,7 +83,7 @@ Developers can instantly generate a free tier API key by providing a valid email
 
 - **FR-001**: System MUST expose a `POST /v1/scan` endpoint.
 - **FR-002**: System MUST accept a JSON payload with `api_key`, `prompt`, and optional `context`.
-- **FR-003**: System MUST return a structured JSON response containing `verdict` (safe, blocked, review), `threat_type`, `confidence`, `reason`, `sanitized_prompt`, and `scan_id`.
+- **FR-003**: System MUST return a structured JSON response containing `verdict` (pass, blocked, flag), `threat_type`, `confidence`, `reason`, `sanitized_prompt`, and `scan_id`.
 - **FR-004**: System MUST evaluate prompts against a regex/pattern matching engine first.
 - **FR-005**: System MUST evaluate prompts against a semantic embedding similarity engine against known attack vectors.
 - **FR-006**: System MUST evaluate prompts using an external LLM call if the previous steps yield a confidence below 0.6.
