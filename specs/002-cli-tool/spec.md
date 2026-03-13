@@ -12,7 +12,7 @@ Developers can import PromptShield as a Python library and run scans programmati
 
 **Why this priority**: Core value proposition. Developers want frictionless programmatic integration.
 
-**Independent Test**: Can be fully tested by writing a simple Python script that imports `promptshield.Shield`, configures it with an API key, and calls `shield.scan()`.
+**Independent Test**: Can be fully tested by writing a simple Python script that imports `src.Shield`, configures it with an API key, and calls `shield.scan()`.
 
 **Acceptance Scenarios**:
 
@@ -60,12 +60,12 @@ Developers can run a local FastAPI server to consume PromptShield via HTTP from 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST provide a `Shield` class that can be imported and instantiated without complex boilerplate.
+- **FR-001**: System MUST provide a `Shield` class that can be imported from `src` and instantiated without complex boilerplate.
 - **FR-002**: System MUST provide a `promptshield` CLI with `scan`, `init`, and `server` subcommands.
 - **FR-003**: System MUST expose a `/v1/scan` endpoint in server mode that matches the core scan contract.
 - **FR-004**: System MUST return a unified scan contract containing `verdict`, `threat_type`, `confidence`, `reason`, `sanitized_prompt`, `scan_id`, and `pipeline_layer`.
 - **FR-005**: Configuration MUST be resolved in the order: CLI flags > Environment Variables > `.promptshield.yaml`.
-- **FR-006**: The detection pipeline MUST run entirely locally (Regex -> ephemeral ChromaDB -> LLM provider via API).
+- **FR-006**: The detection pipeline MUST run entirely locally (Regex -> NumPy vector index -> LLM provider via API).
 - **FR-007**: System MUST NOT include any billing, API key management, or multi-user architecture.
 - **FR-008**: PyPI publication is deferred — not part of v1 scope. Current distribution method: git install via GitHub URL. Note that `pyproject.toml` is ready for PyPI when needed.
 

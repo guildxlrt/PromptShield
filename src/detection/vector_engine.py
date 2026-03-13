@@ -5,7 +5,7 @@ from pathlib import Path
 import httpx
 import numpy as np
 
-from promptshield.config import ShieldConfig
+from src.config import ShieldConfig
 
 _index: np.ndarray | None = None
 _metadata: list[dict] = []

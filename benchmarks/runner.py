@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from dotenv import load_dotenv
 
-from promptshield import Shield
+from src import Shield
 
 from .dataset import DEFAULT_CONTEXT
 

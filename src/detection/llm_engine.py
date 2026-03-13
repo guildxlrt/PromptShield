@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 
 import httpx
 
-from promptshield.config import ShieldConfig
+from src.config import ShieldConfig
 
 
 async def scan_llm(

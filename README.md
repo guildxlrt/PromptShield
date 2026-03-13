@@ -86,7 +86,7 @@ PromptShield provides three interfaces: a Python library, a CLI command, and a l
 ### 1. Python Library
 
 ```python
-from promptshield import Shield
+from src import Shield
 
 # Configuration is loaded automatically
 shield = Shield()

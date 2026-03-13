@@ -5,13 +5,13 @@
 
 ## Summary
 
-Pivot PromptShield from a SaaS backend (001-core-api) to a self-hosted developer tool. The tool will provide three interfaces: a Python library, a CLI command, and a local HTTP server mode. All SaaS-specific infrastructure (billing, auth, DB persistence) will be removed. The core detection pipeline (Regex -> ChromaDB -> LLM) remains intact but runs locally.
+Pivot PromptShield from a SaaS backend (001-core-api) to a self-hosted developer tool. The tool will provide three interfaces: a Python library, a CLI command, and a local HTTP server mode. All SaaS-specific infrastructure (billing, auth, DB persistence) will be removed. The core detection pipeline (Regex -> NumPy embedding similarity -> LLM) runs locally with optional sentence-transformers support.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11+
-**Primary Dependencies**: `pydantic`, `chromadb`, `httpx`, `fastapi`, `uvicorn`, `click` or `typer`, `pyyaml`
-**Storage**: Ephemeral ChromaDB (`promptshield/data/attack_patterns.json`)
+**Primary Dependencies**: `pydantic`, `numpy`, `httpx`, `fastapi`, `uvicorn`, `typer`, `pyyaml`. Optional: `sentence-transformers` for local embeddings.
+**Storage**: Local JSON attack patterns (`src/data/attack_patterns.json`), ephemeral NumPy index in memory
 **Testing**: `pytest`
 **Target Platform**: Linux, macOS, Windows (local execution)
 **Project Type**: Library / CLI / Local Server
@@ -41,19 +41,19 @@ specs/002-cli-tool/
 ### Source Code
 
 ```text
-promptshield/
+src/
 ├── __init__.py              # exposes Shield class as public API
 ├── shield.py                # core Shield class — main entry point
 ├── config.py                # config loading (file + env + flags)
 ├── detection/
 │   ├── pipeline.py          # tiered orchestration
 │   ├── regex_engine.py      # pattern matching
-│   ├── vector_engine.py     # ChromaDB + embedding API calls
+│   ├── vector_engine.py     # NumPy cosine similarity + optional local embeddings
 │   └── llm_engine.py        # LLM fallback via httpx
 ├── data/
 │   └── attack_patterns.json # bundled attack vector dataset
 ├── cli/
-│   └── main.py              # Click/Typer CLI entry point
+│   └── main.py              # Typer CLI entry point
 └── server/
     └── app.py               # FastAPI local server mode
 

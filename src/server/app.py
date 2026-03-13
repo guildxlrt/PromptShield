@@ -1,14 +1,16 @@
 from fastapi import FastAPI, HTTPException
-from promptshield import Shield, ShieldConfig, ScanRequest, ScanResponse
+
+from src import ScanRequest, ScanResponse, Shield, ShieldConfig
 
 app = FastAPI(
-    title="PromptShield Server", 
+    title="PromptShield Server",
     version="2.0.0",
-    description="Local security tool protecting LLM applications from prompt injection and jailbreak attempts."
+    description="Local security tool protecting LLM applications from prompt injection and jailbreak attempts.",
 )
 
 config = ShieldConfig.load()
 shield = Shield(config=config)
+
 
 @app.post("/v1/scan", response_model=ScanResponse)
 def scan_endpoint(request: ScanRequest):
@@ -21,6 +23,7 @@ def scan_endpoint(request: ScanRequest):
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/health")
 def health_check():

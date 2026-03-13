@@ -60,7 +60,7 @@ specs/001-core-api/
 ### Source Code (repository root)
 
 ```text
-promptshield/
+src/
 ├── __init__.py          # Public API exports
 ├── shield.py            # Shield class — main user-facing entry point
 ├── config.py            # Configuration management (YAML + env vars)
@@ -105,7 +105,7 @@ ScanResponse (with reason, threat_type, confidence, pipeline_layer)
 
 ### Layer 1: Regex Engine
 
-**File**: `detection/regex_engine.py`
+**File**: `src/detection/regex_engine.py`
 
 **Signature**:
 ```python
@@ -122,7 +122,7 @@ def scan_regex(prompt: str) -> Tuple[str, float, str]:
 
 ### Layer 2: Vector Engine
 
-**File**: `detection/vector_engine.py`
+**File**: `src/detection/vector_engine.py`
 
 **Signature**:
 ```python
@@ -147,7 +147,7 @@ async def scan_vector(prompt: str, config: ShieldConfig) -> Tuple[str, float, st
 
 ### Layer 3: LLM Engine
 
-**File**: `detection/llm_engine.py`
+**File**: `src/detection/llm_engine.py`
 
 **Signature** (Updated):
 ```python
@@ -201,7 +201,7 @@ return (
 
 ### Pipeline Orchestration
 
-**File**: `detection/pipeline.py`
+**File**: `src/detection/pipeline.py`
 
 **Main function**:
 ```python

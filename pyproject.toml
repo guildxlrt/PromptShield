@@ -22,14 +22,19 @@ dependencies = [
 ]
 
 [project.scripts]
-promptshield = "promptshield.cli.main:app"
+promptshield = "src.cli.main:app"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[dependency-groups]
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[project.optional-dependencies]
+local = ["sentence-transformers>=2.7.0"]
 dev = [
+    "sentence-transformers>=2.7.0",
     "pandas>=3.0.1",
     "tabulate>=0.10.0",
 ]

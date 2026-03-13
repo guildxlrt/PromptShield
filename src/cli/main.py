@@ -4,7 +4,7 @@ from typing import Optional
 import typer
 import yaml
 
-from promptshield import Shield, ShieldConfig
+from src import Shield, ShieldConfig
 
 app = typer.Typer(help="PromptShield CLI - Local security for LLM applications.")
 
@@ -96,7 +96,7 @@ def server():
     """Start the local PromptShield HTTP server."""
     import uvicorn
 
-    from promptshield.config import ShieldConfig
+    from src.config import ShieldConfig
 
     config = ShieldConfig.load()
     typer.secho(
@@ -104,7 +104,7 @@ def server():
         fg=typer.colors.BLUE,
     )
     uvicorn.run(
-        "promptshield.server.app:app",
+        "src.server.app:app",
         host=config.server.host,
         port=config.server.port,
         reload=False,
