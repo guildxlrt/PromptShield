@@ -47,5 +47,9 @@ class ShieldConfig(BaseSettings):
             config.provider.llm_model = os.environ["PROMPTSHIELD_LLM_MODEL"]
         if "PROMPTSHIELD_EMBEDDING_MODEL" in os.environ:
             config.provider.embedding_model = os.environ["PROMPTSHIELD_EMBEDDING_MODEL"]
+        if "PROMPTSHIELD_CONFIDENCE_THRESHOLD" in os.environ:
+            config.detection.confidence_threshold = float(
+                os.environ["PROMPTSHIELD_CONFIDENCE_THRESHOLD"]
+            )
 
         return config
