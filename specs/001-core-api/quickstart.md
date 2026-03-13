@@ -66,7 +66,7 @@ provider:
   embedding_model: openai/text-embedding-3-small
 
 detection:
-  confidence_threshold: 0.6
+  confidence_threshold: 0.42
   max_prompt_length: 10000
 
 server:

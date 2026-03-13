@@ -49,7 +49,7 @@ Developers integrate the scan endpoint into their application backend to filter 
 - **FR-003**: System MUST return a structured JSON response containing `verdict` (pass, blocked, flag), `threat_type`, `confidence`, `reason`, `sanitized_prompt`, and `scan_id`.
 - **FR-004**: System MUST evaluate prompts against a regex/pattern matching engine first.
 - **FR-005**: System MUST evaluate prompts against a semantic embedding similarity engine against known attack vectors.
-- **FR-006**: System MUST evaluate prompts using an external LLM call if the previous steps yield a confidence below 0.6.
+- **FR-006**: System MUST evaluate prompts using an external LLM call if the previous steps yield a confidence below 0.42.
 - **FR-007**: System MUST log every scan interaction with `scan_id`, timestamp, `verdict`, and `threat_type` for audit trails.
 - **FR-008**: System MUST dogfood its own API to protect itself from malicious inputs.
 - **FR-009**: System MUST enforce Free tier limits of 1,000 scans/month and 10 req/minute using a **Token Bucket** algorithm.

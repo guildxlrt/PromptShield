@@ -81,7 +81,7 @@ def init():
             "llm_model": "meta-llama/llama-3-8b-instruct",
             "embedding_model": "openai/text-embedding-3-small",
         },
-        "detection": {"confidence_threshold": 0.6, "max_prompt_length": 10000},
+        "detection": {"confidence_threshold": 0.42, "max_prompt_length": 10000},
         "server": {"port": 8765, "host": "127.0.0.1"},
     }
 

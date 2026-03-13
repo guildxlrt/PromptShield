@@ -140,7 +140,7 @@ async def scan_vector(prompt: str, config: ShieldConfig) -> Tuple[str, float, st
 2. Calls OpenRouter embedding API to embed both the input prompt and the index examples
 3. Computes cosine similarity via NumPy matrix multiplication
 4. Selects the top-1 nearest neighbor (highest similarity)
-5. Compares similarity score to `confidence_threshold` (default 0.6)
+5. Compares similarity score to `confidence_threshold` (default 0.42)
 6. Returns verdict based on threshold; if below threshold, the pipeline escalates to Layer 3
 
 **Thread-safe**: Uses a module-level lock to ensure the index is built exactly once, even under concurrent load.
