@@ -50,4 +50,10 @@ dist/
 build/
 
 # Others
-*lock.*
+*.lock
+
+# Benchmark outputs - do not commit
+benchmark_*.csv
+benchmark_*.json
+benchmark_results.*
+benchmark_summary.*

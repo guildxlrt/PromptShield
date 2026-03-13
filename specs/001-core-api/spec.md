@@ -1,9 +1,19 @@
+# ⚠️ SUPERSEDED – ARCHITECTURAL PIVOT (2025)
+
+**This specification describes the original cloud-hosted SaaS plan.**
+**It was abandoned in favor of a local-first Python library (see spec-002).**
+**Most functional requirements listed here were never implemented.**
+
+---
+
 # Feature Specification: PromptShield API Core Endpoints
 
 **Feature Branch**: `001-core-api`  
 **Created**: 2026-03-01  
-**Status**: Draft  
+**Status**: SUPERSEDED (see spec-002 for current implementation)  
 **Input**: User description: "PromptShield is a security checkpoint for LLM applications. Developers call it before sending user prompts to any LLM. It detects malicious inputs and returns a structured verdict."
+
+**ARCHITECTURAL NOTE**: This spec originally proposed a multi-tenant cloud API with Stripe billing, SQLite user accounts, and HMAC-hashed email storage. In early 2025, the project pivoted to a self-hosted, single-machine Python library with zero infrastructure requirements. Spec-002 ("CLI Tool & SDK") documents the current, implemented architecture. Requirements FR-002, FR-009–FR-017 (billing, auth, rate limiting, email hashing) were abandoned. Only the core detection pipeline (FR-001, FR-003–FR-006) and its latency SLOs survive in spec-002.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -20,53 +30,6 @@ Developers integrate the scan endpoint into their application backend to filter 
 1. **Given** a developer with a valid API key, **When** they send a pass prompt, **Then** the API returns a verdict of "pass" within 500ms.
 2. **Given** a developer with a valid API key, **When** they send an obvious prompt injection attempt (e.g. "ignore previous instructions"), **Then** the API returns a verdict of "blocked" with a threat_type and reason within 500ms.
 3. **Given** a developer with a valid API key, **When** they send an ambiguous prompt, **Then** the API routes it to the LLM analyzer and returns a verdict within 2 seconds.
-
----
-
-### User Story 2 - API Access Control and Rate Limiting (Priority: P2)
-
-The system enforces access control via company API keys and limits request rates based on the subscription tier (Free vs Paid).
-
-**Why this priority**: Essential for cost control and preventing abuse. The system relies on a strict $50 budget, making rate limiting a critical protection.
-
-**Independent Test**: Can be tested by exceeding the allocated request rate and verifying that the API returns standard HTTP 429 Too Many Requests errors.
-
-**Acceptance Scenarios**:
-
-1. **Given** an unauthenticated user, **When** they call `/v1/scan`, **Then** the API returns an unauthorized error.
-2. **Given** a developer on the Free tier, **When** they exceed 10 requests per minute or 1,000 scans per month, **Then** the API returns a 429 error.
-3. **Given** a developer on the Paid tier, **When** they exceed 100 requests per minute or 50,000 scans per month, **Then** the API returns a 429 error.
-
----
-
-### User Story 3 - Billing and Payment Flow (Priority: P3)
-
-Developers can upgrade their account to the paid tier via a Stripe checkout flow to increase their rate limits.
-
-**Why this priority**: Required for monetization of the service without needing a full UI dashboard.
-
-**Independent Test**: Can be tested by generating a checkout URL, simulating a successful Stripe payment webhook, and verifying the tier upgrade via the status endpoint.
-
-**Acceptance Scenarios**:
-
-1. **Given** a free tier user, **When** they request a checkout session, **Then** the API returns a valid Stripe checkout URL.
-2. **Given** a valid Stripe webhook event for a completed session, **When** the system receives it, **Then** the user's tier is upgraded to "paid" and rate limits are increased.
-3. **Given** a user checks their billing status, **When** they query the status endpoint, **Then** the API returns their current tier and usage.
-
----
-
-### User Story 4 - Self-Serve Key Generation (Priority: P2)
-
-Developers can instantly generate a free tier API key by providing a valid email address, allowing them to start testing immediately without needing a full account dashboard.
-
-**Why this priority**: Minimizes friction to adoption by allowing developers to instantly test the API.
-
-**Independent Test**: Can be tested by posting an email to the `/auth/register` endpoint and verifying the returned API key instantly works on the `/v1/scan` endpoint.
-
-**Acceptance Scenarios**:
-
-1. **Given** a new developer, **When** they send a valid email to the registration endpoint, **Then** the system returns a new API key starting with "ps_free_".
-2. **Given** a returning developer, **When** they try to register with an already used email, **Then** the system returns a 409 Conflict error.
 
 ---
 
@@ -98,6 +61,8 @@ Developers can instantly generate a free tier API key by providing a valid email
 - **FR-015**: System MUST expose a `GET /billing/status` endpoint to return the current subscription tier and usage information for an `api_key`.
 - **FR-016**: System MUST expose a `POST /auth/register` endpoint to accept an email, validate it, insert a new user into the SQLite database, and instantly return a generated free tier API key.
 - **FR-017**: System MUST hash all emails using HMAC-SHA256 with a secret pepper before persistence. Raw email MUST NOT be written to disk, logged, or returned in any API response.
+- **FR-018**: The LLM detection engine (`scan_llm()`) MUST instruct the LLM to provide a mandatory `reason` field in its JSON response via the system prompt. The engine MUST extract the `reason` field from the LLM's JSON response and return it as the 4th element of a 4-tuple: `(verdict, confidence, threat_type, reason)`. The reason MUST be propagated through the detection pipeline to populate the `ScanResponse.reason` field. The system prompt MUST explicitly require that the reason field is never empty and must explain the verdict in a concise manner.
+- **FR-019**: The LLM system prompt MUST instruct the LLM to respond with valid JSON using only double quotes (not single quotes). The system prompt MUST include an example JSON object with escaped double quotes to demonstrate the required format. This ensures that the LLM's JSON response can be successfully parsed by Python's `json.loads()` without errors.
 
 ### Key Entities
 
@@ -113,3 +78,5 @@ Developers can instantly generate a free tier API key by providing a valid email
 - **SC-002**: API responds to prompts requiring LLM evaluation in under 2000ms (**P95 latency**).
 - **SC-003**: System detects known jailbreak attempts with a confidence of >0.9 using the local embedding pipeline.
 - **SC-004**: System successfully enforces rate limits strictly blocking requests beyond 10 req/min (Free) and 100 req/min (Paid).
+- **SC-005**: The `ScanResponse.reason` field is always populated with a non-empty string describing why the verdict was reached, either from the detection layer or the LLM.
+- **SC-006**: 100% of LLM responses are successfully parsed by `json.loads()` without JSON decoding errors, confirming valid JSON formatting with double quotes.

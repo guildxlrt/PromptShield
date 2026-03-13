@@ -27,3 +27,9 @@ promptshield = "promptshield.cli.main:app"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pandas>=3.0.1",
+    "tabulate>=0.10.0",
+]

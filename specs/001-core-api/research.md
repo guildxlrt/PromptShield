@@ -1,4 +1,16 @@
+# ⚠️ SUPERSEDED – ARCHITECTURAL PIVOT (2025)
+
+**This specification describes the original cloud-hosted SaaS plan.**  
+**It was abandoned in favor of a local-first Python library (see spec-002).**  
+**Most functional requirements listed here were never implemented.**
+
+---
+
 # Research: PromptShield API Core Endpoints
+
+**Status**: SUPERSEDED (see spec-002 for current implementation)
+
+**HISTORICAL NOTE**: This research predates the architectural pivot. The vector store decision documented below (ChromaDB) was subsequently replaced with a NumPy brute-force implementation in spec-003. The multi-tenant billing and authentication architecture was entirely abandoned.
 
 ## Phase 0: Outline & Research
 

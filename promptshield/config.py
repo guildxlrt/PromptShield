@@ -1,8 +1,10 @@
 import os
-import yaml
 from pathlib import Path
-from pydantic_settings import BaseSettings
+
+import yaml
 from pydantic import BaseModel, Field
+from pydantic_settings import BaseSettings
+
 
 class ProviderConfig(BaseModel):
     base_url: str = "https://openrouter.ai/api/v1"
@@ -10,13 +12,16 @@ class ProviderConfig(BaseModel):
     llm_model: str = "meta-llama/llama-3-8b-instruct"
     embedding_model: str = "openai/text-embedding-3-small"
 
+
 class DetectionConfig(BaseModel):
     confidence_threshold: float = 0.6
     max_prompt_length: int = 10000
 
+
 class ServerConfig(BaseModel):
     port: int = 8765
     host: str = "127.0.0.1"
+
 
 class ShieldConfig(BaseSettings):
     provider: ProviderConfig = Field(default_factory=ProviderConfig)

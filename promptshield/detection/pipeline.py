@@ -35,12 +35,14 @@ async def run_pipeline(
 
     # 3. LLM Fallback (expensive, slow) - if confidence is low (< threshold)
     if confidence < config.detection.confidence_threshold:
-        verdict, llm_conf, threat = await scan_llm(prompt, config, context)
+        verdict, llm_conf, threat, reason = await scan_llm(prompt, config, context)
         return {
             "verdict": verdict,
             "confidence": llm_conf,
             "threat_type": threat,
-            "reason": f"LLM evaluation result: {verdict}",
+            "reason": reason
+            if reason and reason.strip()
+            else f"LLM evaluation result: {verdict}",
             "sanitized_prompt": "[BLOCKED]" if verdict == "blocked" else prompt,
             "pipeline_layer": "llm",
         }

@@ -72,10 +72,11 @@ You can configure PromptShield via CLI flags, environment variables, or a `.prom
 ### Environment Variables
 
 ```bash
-PROMPTSHIELD_API_KEY=sk-...
-PROMPTSHIELD_BASE_URL=https://openrouter.ai/api/v1
-PROMPTSHIELD_LLM_MODEL=meta-llama/llama-3-8b-instruct
-PROMPTSHIELD_EMBEDDING_MODEL=openai/text-embedding-3-small
+PROMPTSHIELD_API_KEY=sk-...                                    # Your OpenRouter API key
+PROMPTSHIELD_BASE_URL=https://openrouter.ai/api/v1             # (optional) API provider URL
+PROMPTSHIELD_LLM_MODEL=meta-llama/llama-3-8b-instruct           # LLM for fallback evaluation
+PROMPTSHIELD_EMBEDDING_MODEL=openai/text-embedding-3-small     # Embedding model for vector layer
+PROMPTSHIELD_CONFIDENCE_THRESHOLD=0.6                          # (optional) Detection threshold [0.0–1.0]
 ```
 
 ## Usage
@@ -137,31 +138,48 @@ The server returns the exact same JSON scan response contract as the other inter
 
 PromptShield runs the entire detection pipeline locally on your machine, applying the following tiered strategy:
 1. **Regex Engine**: Instant pattern matching against known malicious phrases.
-2. **Vector Engine**: Semantic similarity matching using an ephemeral ChromaDB instance.
-3. **LLM Engine**: A fallback check using your configured LLM API provider if confidence is below a certain threshold.
+2. **Vector Engine**: Semantic similarity matching using an in-memory NumPy index of known attack vectors (cosine similarity, threshold 0.6 by default).
+3. **LLM Engine**: A fallback check using your configured LLM API provider if confidence is below a certain threshold (default 0.6).
 
 
-## Scan Response
+### Scan Response
 
-| Field | Type | Description |
-|---|---|---|
-| `verdict` | `pass` / `blocked` / `flag` | Primary decision |
-| `threat_type` | `prompt_injection` / `jailbreak` / `none` | Attack category |
-| `confidence` | float 0–1 | Detection confidence |
-| `reason` | string | Human-readable explanation |
-| `sanitized_prompt` | string | Cleaned prompt or `[BLOCKED]` |
-| `pipeline_layer` | `regex` / `embedding` / `llm` | Which layer caught it |
-| `scan_id` | UUID | For audit trail |
+The `scan()` method returns a dictionary with the following fields:
+
+| Field              | Type     | Description                                                                 | Example / Possible values                  |
+|--------------------|----------|------------------------------------------------------------------- ----------|----------------------------------------------|
+| `verdict`          | str      | Final decision                                                             | `"pass"`, `"blocked"`, `"flag"`              |
+| `pipeline_layer`   | str      | Layer that made the final decision                                        | `"regex"`, `"embedding"`, `"llm"`, `"none"`  |
+| `confidence`       | float    | Confidence score (0.0–1.0)                                                | `0.92`, `0.47`                               |
+| `reason`           | str      | Textual explanation (regex pattern, embedding score, LLM reasoning)   | `“Matched malicious regex pattern: jailbreak”` |
+| `threat_type`      | str or null | Type of attack detected (if applicable)                                   | `"prompt_injection"`, `"jailbreak"`, `"none"`  |
+| `scan_id`          | str      | Unique scan ID (for application-side logging)                 | `"123e4567-e89b-12d3-a456-426614174000"`     |
+| `sanitized_prompt` | str      | Original prompt (unmodified) or `"[BLOCKED]"` if verdict = blocked        | `"ignore previous instructions..."` or `"[BLOCKED]"` |
 
 ## CI/CD Integration
 
-PromptShield returns exit code `0` for pass prompts and `1` for 
+PromptShield returns exit code `0` for safe prompts and `1` for 
 blocked or flag verdicts — making it usable directly in pipelines:
 ```yaml
 # GitHub Actions example
 - name: Scan user input
   run: promptshield scan "${{ github.event.inputs.prompt }}"
 ```
+
+## Benchmarks
+
+PromptShield includes a comprehensive benchmark suite. Run it locally to measure detection accuracy and latency:
+
+```bash
+python -m benchmarks.run
+```
+
+This generates:
+- **`benchmark_results.csv`**: Per-prompt results (verdict, latency, correctness)
+- **`benchmark_summary.json`**: Aggregated metrics (recall, false positive rate, per-layer latency percentiles)
+- **Console report**: Visual summary with layer distribution and false positives
+
+Both output files are ephemeral, **not committed** to the repository (excluded via .gitignore), and regenerated each time you run the benchmark.
 
 ## Roadmap
 

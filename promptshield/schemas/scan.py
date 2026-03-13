@@ -12,7 +12,7 @@ class ScanRequest(BaseModel):
 class ScanResponse(BaseModel):
     scan_id: UUID
     verdict: Literal["pass", "blocked", "flag"]
-    threat_type: Literal["prompt_injection", "jailbreak", "none"]
+    threat_type: str  # Flexible string to accommodate LLM-generated threat classifications
     confidence: float
     reason: str
     sanitized_prompt: str
