@@ -1,9 +1,9 @@
 from typing import Any, Dict, Optional
 
-from src.config import ShieldConfig
-from src.detection.llm_engine import scan_llm
-from src.detection.regex_engine import scan_regex
-from src.detection.vector_engine import scan_vector
+from promptshield.config import ShieldConfig
+from promptshield.detection.llm_engine import scan_llm
+from promptshield.detection.regex_engine import scan_regex
+from promptshield.detection.vector_engine import scan_vector
 
 
 async def run_pipeline(

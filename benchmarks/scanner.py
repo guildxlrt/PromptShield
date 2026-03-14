@@ -37,7 +37,7 @@ def make_cli_scan_fn(
         else:
             env = None
 
-        cmd: list[str] = [sys.executable, "-m", "src.cli.main", "scan", prompt]
+        cmd: list[str] = [sys.executable, "-m", "promptshield.cli.main", "scan", prompt]
         if context:
             cmd += ["--context", context]
 

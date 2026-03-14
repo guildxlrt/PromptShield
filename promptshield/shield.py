@@ -3,9 +3,9 @@ import concurrent.futures
 import uuid
 from typing import Optional
 
-from src.config import ShieldConfig
-from src.detection.pipeline import run_pipeline
-from src.schemas.scan import ScanResponse
+from promptshield.config import ShieldConfig
+from promptshield.detection.pipeline import run_pipeline
+from promptshield.schemas.scan import ScanResponse
 
 
 class Shield:

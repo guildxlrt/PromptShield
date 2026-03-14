@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 
-from src import ScanRequest, ScanResponse, Shield, ShieldConfig
+from promptshield import ScanRequest, ScanResponse, Shield, ShieldConfig
 
 app = FastAPI(
     title="PromptShield Server",
