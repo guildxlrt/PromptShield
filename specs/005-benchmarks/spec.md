@@ -4,7 +4,7 @@
 **Created**: 2026-03-07
 **Status**: ✅ **Implemented**
 
-⚠️ **NOTE (2025)**: The committed output files `benchmark_results.csv` and `benchmark_summary.json` in the repository root are stale artefacts from a prior 87-prompt benchmark run and reflect a dataset version no longer present in `benchmarks/dataset.py` (which now defines 80 prompts). These files violate spec requirement FR-005 (must not be committed). To generate fresh, accurate results, run `python -m benchmarks.run` locally.
+⚠️ **NOTE (2025)**: The committed output files `benchmark_results.csv` and `benchmark_summary.json` in the repository root are stale artefacts from a prior 87-prompt benchmark run and reflect a dataset version no longer present in `benchmarks/dataset.py` (which now defines 80 prompts). These files violate spec requirement FR-005 (must not be committed). To generate fresh, accurate results, run `promptshield-benchmark run` locally.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -14,11 +14,11 @@ A maintainer runs the benchmark suite to measure the pipeline's recall on known 
 
 **Why this priority**: Recall and false positive rate are the primary quality signals for the detection pipeline. Without a repeatable accuracy benchmark, regressions introduced by dataset or threshold changes go undetected.
 
-**Independent Test**: Can be fully tested by running `python -m benchmarks.run` from the project root and verifying that `benchmark_summary.json` is written and contains `recall_attacks` and `false_positive_rate` keys with valid float values.
+**Independent Test**: Can be fully tested by running `promptshield-benchmark run` from the project root and verifying that `benchmark_summary.json` is written and contains `recall_attacks` and `false_positive_rate` keys with valid float values.
 
 **Acceptance Scenarios**:
 
-1. **Given** a configured PromptShield environment, **When** `python -m benchmarks.run` is executed, **Then** the runner scans all 80 prompts sequentially and prints one progress line per prompt showing its label, verdict, pipeline layer, latency, and correctness symbol.
+1. **Given** a configured PromptShield environment, **When** `promptshield-benchmark run` is executed, **Then** the runner scans all 80 prompts sequentially and prints one progress line per prompt showing its label, verdict, pipeline layer, latency, and correctness symbol.
 2. **Given** the run completes, **When** `benchmark_summary.json` is read, **Then** `recall_attacks` reflects the fraction of the 40 attack-labelled prompts that received a `blocked` verdict.
 3. **Given** the run completes, **When** `benchmark_summary.json` is read, **Then** `false_positive_rate` reflects the fraction of the 30 safe-labelled prompts that did **not** receive a `pass` verdict.
 4. **Given** the run completes, **When** `benchmark_summary.json` is read, **Then** the 10 ambiguous-labelled prompts are excluded from both recall and FP calculations and appear only in `ambiguous_distribution`.
@@ -86,7 +86,7 @@ A maintainer reviews the runtime configuration snapshot to verify which embeddin
 
 ### Functional Requirements
 
-- **FR-001**: The benchmark MUST be runnable as `python -m benchmarks.run` from the project root with no additional arguments required.
+- **FR-001**: The benchmark MUST be runnable as `promptshield-benchmark run` from the project root with no additional arguments required.
 - **FR-002**: The benchmark MUST scan every prompt in `DATASET` sequentially using the same `Shield` instance and print one progress line per prompt to stdout.
 - **FR-003**: The benchmark MUST write a `benchmark_results.csv` file to the project root containing one row per prompt with columns: `prompt`, `expected`, `verdict`, `pipeline_layer`, `confidence`, `latency_ms`, `correct`.
 - **FR-004**: The benchmark MUST write a `benchmark_summary.json` file to the project root containing all aggregated metrics from `compute_metrics()` and a `runtime_config` object.

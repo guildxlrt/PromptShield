@@ -11,11 +11,6 @@ entirely on your machine, uses a tiered detection pipeline
 (regex → semantic similarity → LLM fallback), and brings your own 
 API key — no data ever leaves your infrastructure.
 
-## Check the demo
-
-[Demo](https://guillaume-lauret.dev/projects/promptshield)
-
-
 ## How It Works
 ```
 Your App                      PromptShield                  Your LLM
@@ -57,6 +52,8 @@ but provides no detection guarantee.
 
 Multilingual support is planned for future versions.
 
+## Go check the [demo](https://guillaume-lauret.dev/projects/promptshield).
+
 ## Installation
 
 > ⚠️ PyPI release coming soon. Install directly from GitHub 
@@ -86,7 +83,7 @@ PromptShield provides three interfaces: a Python library, a CLI command, and a l
 ### 1. Python Library
 
 ```python
-from src import Shield
+from promptshield import Shield
 
 # Configuration is loaded automatically
 shield = Shield()
@@ -139,7 +136,40 @@ The server returns the exact same JSON scan response contract as the other inter
 PromptShield runs the entire detection pipeline locally on your machine, applying the following tiered strategy:
 1. **Regex Engine**: Instant pattern matching against known malicious phrases.
 2. **Vector Engine**: Semantic similarity matching using an in-memory NumPy index of known attack vectors (cosine similarity, threshold 0.6 by default).
+   - By default, uses a remote API (OpenRouter) for embeddings
+   - **Optional**: Use local embeddings via sentence-transformers to avoid API calls (see "Local Embeddings" below)
 3. **LLM Engine**: A fallback check using your configured LLM API provider if confidence is below a certain threshold (default 0.6).
+
+### Local Embeddings (Optional)
+
+To avoid API calls for embeddings, you can use local models from sentence-transformers:
+
+```bash
+# Install the local embedding extra
+pip install promptshield[local]
+```
+
+Then configure a local model in `.promptshield.yaml`:
+
+```yaml
+provider:
+  base_url: https://openrouter.ai/api/v1
+  api_key: sk-...  # Only needed if using LLM fallback
+  llm_model: meta-llama/llama-3-8b-instruct
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2  # Local model
+```
+
+**Supported model prefixes:**
+- `sentence-transformers/` — HuggingFace sentence-transformers models (e.g., `all-MiniLM-L6-v2`, `all-mpnet-base-v2`)
+- `BAAI/` — BAAI embedding models (e.g., `BAAI/bge-small-en-v1.5`)
+- `intfloat/` — Intfloat embedding models
+
+**Popular choices for security detection:**
+- `sentence-transformers/all-MiniLM-L6-v2` — Fast, lightweight, good for semantic similarity (~80MB)
+- `sentence-transformers/all-mpnet-base-v2` — Slower but more accurate (~420MB)
+- `BAAI/bge-small-en-v1.5` — Specialized for semantic search (~130MB)
+
+Models are automatically downloaded on first use and cached in memory for subsequent calls.
 
 
 ### Scan Response
@@ -168,10 +198,12 @@ blocked or flag verdicts — making it usable directly in pipelines:
 
 ## Benchmarks
 
-PromptShield includes a comprehensive benchmark suite. Run it locally to measure detection accuracy and latency:
+PromptShield includes a comprehensive benchmark suite that measures detection accuracy and per-layer latency across all 80 curated prompts (40 attacks, 10 ambiguous, 30 safe).
+
+### Basic Run
 
 ```bash
-python -m benchmarks.run
+promptshield-benchmark run
 ```
 
 This generates:
@@ -179,7 +211,45 @@ This generates:
 - **`benchmark_summary.json`**: Aggregated metrics (recall, false positive rate, per-layer latency percentiles)
 - **Console report**: Visual summary with layer distribution and false positives
 
-Both output files are ephemeral, **not committed** to the repository (excluded via .gitignore), and regenerated each time you run the benchmark.
+Both output files are ephemeral, **not committed** to the repository (excluded via `.gitignore`), and regenerated each time you run the benchmark.
+
+### Benchmark Sweep
+
+Run a grid search over multiple `(embedding_model, llm_model, threshold)` combinations in a single invocation and get a ranked comparison table:
+
+```bash
+# Default sweep: 2 models × 5 thresholds = 10 combinations
+promptshield-benchmark sweep
+
+# Custom models
+promptshield-benchmark sweep --models-embedding "openai/text-embedding-3-small,google/gemini-embedding-001"
+
+# Custom thresholds
+promptshield-benchmark sweep --thresholds "0.40,0.42,0.45,0.50,0.60"
+
+# Override the LLM fallback model for all combinations
+promptshield-benchmark sweep --models-llm "meta-llama/llama-3-8b-instruct"
+
+# Full custom sweep
+promptshield-benchmark sweep \
+  --models-embedding "openai/text-embedding-3-small,google/gemini-embedding-001" \
+  --thresholds "0.40,0.42,0.45,0.50,0.60" \
+  --models-llm "meta-llama/llama-3-8b-instruct,meta-llama/llama-3.3-70b-instruct"
+```
+
+**Default models** (when `--models-embedding` is omitted):
+- `openai/text-embedding-3-small`
+- `google/gemini-embedding-001`
+
+**Default thresholds** (when `--thresholds` is omitted): `0.40, 0.42, 0.45, 0.50, 0.60`
+
+The sweep prints a ranked comparison table at the end, sorted by a **composite score**:
+
+```
+composite = recall − (2 × fpr)
+```
+
+False positives are penalised twice as heavily as missed attacks, reflecting the real-world cost of blocking legitimate users. Full results (including per-combination metrics) are saved to `benchmarks/sweep_results.json` (gitignored).
 
 ## Roadmap
 

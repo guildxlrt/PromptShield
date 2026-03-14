@@ -1,10 +1,9 @@
 import os
 import time
 from dataclasses import dataclass
+from typing import Any, Callable
 
 from dotenv import load_dotenv
-
-from src import Shield
 
 from .dataset import DEFAULT_CONTEXT
 
@@ -43,7 +42,7 @@ class BenchmarkResult:
     confidence: float
     latency_ms: float
     reason: str  # LLM judge explanation or detection reason
-    correct: bool  # True if verdict matches expected (attacks→blocked, safe→pass)
+    correct: bool | None  # True/False for attack/safe; None for ambiguous prompts
 
 
 # ---------------------------------------------------------------------------
@@ -51,13 +50,24 @@ class BenchmarkResult:
 # ---------------------------------------------------------------------------
 
 
-async def run_single(shield: Shield, prompt: str, expected: str) -> BenchmarkResult:
+async def run_single(
+    scan_fn: Callable[..., Any],
+    prompt: str,
+    expected: str,
+) -> BenchmarkResult:
+    """
+    Run a single benchmark case using the provided scan callable.
+
+    scan_fn must accept keyword arguments ``prompt`` and ``context`` and
+    return an object (or Pydantic model) with ``.verdict``,
+    ``.pipeline_layer``, ``.confidence``, and ``.reason`` attributes.
+    """
     start = time.perf_counter_ns()
-    result = shield.scan(prompt=prompt, context=DEFAULT_CONTEXT)
+    result = scan_fn(prompt=prompt, context=DEFAULT_CONTEXT)
     elapsed_ms = (time.perf_counter_ns() - start) / 1_000_000
 
-    # Correctness: attacks should be blocked, safe prompts should pass
-    # Ambiguous prompts are not counted for recall/FP metrics
+    # Correctness: attacks should be blocked, safe prompts should pass.
+    # Ambiguous prompts are not counted for recall/FP metrics.
     if expected == "attack":
         correct = result.verdict == "blocked"
     elif expected == "safe":
@@ -77,20 +87,38 @@ async def run_single(shield: Shield, prompt: str, expected: str) -> BenchmarkRes
     )
 
 
-async def run_benchmark(dataset: list) -> list[BenchmarkResult]:
-    shield = Shield()
+async def run_benchmark(
+    dataset: list,
+    scan_fn: Callable[..., Any],
+    *,
+    quiet: bool = False,
+) -> list[BenchmarkResult]:
+    """
+    Run the full benchmark dataset through the given scan callable.
+
+    Args:
+        dataset:  List of (prompt, expected_label) tuples.
+        scan_fn:  Callable that accepts ``prompt`` and ``context`` keyword
+                  arguments and returns a scan-result object with verdict,
+                  pipeline_layer, confidence, and reason attributes.
+        quiet:    When True, suppress per-prompt progress lines (useful
+                  for sweep runs where the outer loop already prints context).
+    """
     results = []
 
-    print(f"Running benchmark on {len(dataset)} prompts...\n")
+    if not quiet:
+        print(f"Running benchmark on {len(dataset)} prompts...\n")
 
     for i, (prompt, expected) in enumerate(dataset, 1):
-        result = await run_single(shield, prompt, expected)
+        result = await run_single(scan_fn, prompt, expected)
         results.append(result)
 
-        status = "✓" if result.correct else ("~" if result.correct is None else "✗")
-        print(
-            f"  [{i:03d}] {status} [{result.expected:9s}] → {result.verdict:7s} "
-            f"via {result.pipeline_layer:9s} | {result.latency_ms:7.1f}ms | {prompt[:60]}..."
-        )
+        if not quiet:
+            status = "✓" if result.correct else ("~" if result.correct is None else "✗")
+            print(
+                f"  [{i:03d}] {status} [{result.expected:9s}] → {result.verdict:7s} "
+                f"via {result.pipeline_layer:9s} | {result.latency_ms:7.1f}ms"
+                f" | {prompt[:60]}..."
+            )
 
     return results

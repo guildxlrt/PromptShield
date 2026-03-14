@@ -57,8 +57,12 @@ async def scan_llm(
 
             reason = result.get("reason", "")
 
+            raw_verdict = result.get("verdict", "flag")
+            verdict_map = {"block": "blocked", "pass": "pass", "blocked": "blocked", "flag": "flag"}
+            verdict = verdict_map.get(raw_verdict, "flag")
+
             return (
-                result.get("verdict", "flag"),
+                verdict,
                 float(result.get("confidence", 0.5)),
                 result.get("threat_type", "none"),
                 reason,

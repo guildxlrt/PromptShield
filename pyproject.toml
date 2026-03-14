@@ -23,6 +23,7 @@ dependencies = [
 
 [project.scripts]
 promptshield = "src.cli.main:app"
+promptshield-benchmark = "benchmarks.cli:app"
 
 [build-system]
 requires = ["hatchling"]
@@ -32,9 +33,7 @@ build-backend = "hatchling.build"
 packages = ["src"]
 
 [project.optional-dependencies]
-local = ["sentence-transformers>=2.7.0"]
 dev = [
-    "sentence-transformers>=2.7.0",
     "pandas>=3.0.1",
     "tabulate>=0.10.0",
 ]

@@ -57,3 +57,5 @@ benchmark_*.csv
 benchmark_*.json
 benchmark_results.*
 benchmark_summary.*
+sweep_results.json
+benchmarks/sweep_results.json
