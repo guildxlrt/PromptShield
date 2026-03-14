@@ -41,8 +41,8 @@
 ## Phase 3: Sweep Runner
 
 - [x] T011 Create `benchmarks/sweep.py` with the `DEFAULT_MODELS` and `DEFAULT_THRESHOLDS` constants:
-  - `DEFAULT_MODELS = ["openai/text-embedding-3-small", "google/gemini-embedding-001"]`
-  - `DEFAULT_THRESHOLDS = [0.40, 0.42, 0.45, 0.50, 0.60]`
+  - `DEFAULT_MODELS = ["baai/bge-large-en-v1.5", "google/gemini-embedding-001"]`
+  - `DEFAULT_THRESHOLDS = [0.40, 0.65, 0.45, 0.50, 0.60]`
 - [x] T012 Implement `_reset_vector_index()` in `sweep.py`. It imports `src.detection.vector_engine` at call time (lazy import) and sets `_ve._index = None` and `_ve._metadata = []` to invalidate the in-process embedding cache.
 - [x] T013 Implement the scan_fn factory trio in `sweep.py`:
   - `_make_lib_scan_fn(model, threshold, llm_model)` — creates a `Shield` with a mutated `ShieldConfig` and returns `shield.scan`.

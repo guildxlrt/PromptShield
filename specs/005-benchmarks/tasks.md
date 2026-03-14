@@ -21,7 +21,7 @@
 ## Phase 2: Precision & Runtime Config
 
 - [x] T008 Update `benchmarks/runner.py` to use `time.perf_counter_ns()` for nanosecond precision latency measurement. Replace `time.perf_counter()` calls with `time.perf_counter_ns()` and convert elapsed nanoseconds to milliseconds via division by `1_000_000`.
-- [x] T009 Add `get_runtime_config()` function to `benchmarks/runner.py`. The function returns a dict with keys `promptshield_llm_model`, `promptshield_embedding_model`, and `confidence_threshold`, reading from environment variables with documented fallback values (`"unknown"` or `"0.42"`).
+- [x] T009 Add `get_runtime_config()` function to `benchmarks/runner.py`. The function returns a dict with keys `promptshield_llm_model`, `promptshield_embedding_model`, and `confidence_threshold`, reading from environment variables with documented fallback values (`"unknown"` or `"0.65"`).
 - [x] T010 Update `benchmarks/run.py` to import `get_runtime_config` from `runner.py`, call it at the start of `main()`, print the result to the console in a "Runtime Configuration" section before any benchmark runs, and inject the captured config into the metrics dict under the key `runtime_config` before calling `save_json()`.
 - [x] T011 Verify that `benchmark_summary.json` now includes a `runtime_config` key with all three environment variable snapshots at the top level of the JSON object.
 

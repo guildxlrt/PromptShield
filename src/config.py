@@ -10,11 +10,11 @@ class ProviderConfig(BaseModel):
     base_url: str = "https://openrouter.ai/api/v1"
     api_key: str = ""
     llm_model: str = "meta-llama/llama-3-8b-instruct"
-    embedding_model: str = "openai/text-embedding-3-small"
+    embedding_model: str = "baai/bge-large-en-v1.5"
 
 
 class DetectionConfig(BaseModel):
-    confidence_threshold: float = 0.42
+    confidence_threshold: float = 0.65
     max_prompt_length: int = 10000
 
 

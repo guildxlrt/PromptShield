@@ -19,10 +19,10 @@ from benchmarks.scanner import make_cli_scan_fn
 app = typer.Typer(help="PromptShield Benchmark CLI")
 
 DEFAULT_MODELS: list[str] = [
-    "openai/text-embedding-3-small",
-    "google/gemini-embedding-001",
+    "baai/bge-large-en-v1.5",
+    "baai/bge-large-en-v1.5",
 ]
-DEFAULT_THRESHOLDS: list[float] = [0.40, 0.42, 0.45, 0.50, 0.60]
+DEFAULT_THRESHOLDS: list[float] = [0.40, 0.50, 0.60]
 
 
 async def _run_main() -> None:
@@ -157,28 +157,37 @@ def sweep(
         ",".join(DEFAULT_MODELS), help="Comma-separated embedding models"
     ),
     thresholds: str = typer.Option(
-        ",".join(str(t) for t in DEFAULT_THRESHOLDS), help="Comma-separated confidence thresholds"
+        ",".join(str(t) for t in DEFAULT_THRESHOLDS),
+        help="Comma-separated confidence thresholds",
     ),
     models_llm: Optional[str] = typer.Option(
         None, help="Comma-separated LLM models to test"
     ),
 ):
     """Sweep multiple (embedding_model, llm_model, threshold) combinations."""
-    models_list = [m.strip() for m in models_embedding.split(",") if m.strip()] if models_embedding else DEFAULT_MODELS
-    thresholds_list = [float(t.strip()) for t in thresholds.split(",") if t.strip()] if thresholds else DEFAULT_THRESHOLDS
-    
+    models_list = (
+        [m.strip() for m in models_embedding.split(",") if m.strip()]
+        if models_embedding
+        else DEFAULT_MODELS
+    )
+    thresholds_list = (
+        [float(t.strip()) for t in thresholds.split(",") if t.strip()]
+        if thresholds
+        else DEFAULT_THRESHOLDS
+    )
+
     if models_llm:
         llms_list = [m.strip() for m in models_llm.split(",") if m.strip()]
     else:
         llms_list = [None]
-        
+
     sweep_config = {
         "models": models_list,
         "thresholds": thresholds_list,
         "llm_models": llms_list,
         "interface": "cli",
     }
-    
+
     ranked = asyncio.run(
         _run_sweep(
             models=models_list,
@@ -186,7 +195,7 @@ def sweep(
             llm_models=llms_list,
         )
     )
-    
+
     print_ranked_table(ranked)
     save_sweep_results(ranked, sweep_config)
 

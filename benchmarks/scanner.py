@@ -36,7 +36,7 @@ def make_cli_scan_fn(
             env = {**os.environ, **env_overrides}
         else:
             env = None
-            
+
         cmd: list[str] = [sys.executable, "-m", "src.cli.main", "scan", prompt]
         if context:
             cmd += ["--context", context]

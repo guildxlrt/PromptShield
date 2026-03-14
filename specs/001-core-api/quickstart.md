@@ -63,10 +63,10 @@ provider:
   base_url: https://openrouter.ai/api/v1
   api_key: sk-...  # Your OpenRouter API key
   llm_model: meta-llama/llama-3-8b-instruct
-  embedding_model: openai/text-embedding-3-small
+  embedding_model: baai/bge-large-en-v1.5
 
 detection:
-  confidence_threshold: 0.42
+  confidence_threshold: 0.65
   max_prompt_length: 10000
 
 server:
@@ -79,7 +79,7 @@ Or set environment variables:
 ```bash
 export PROMPTSHIELD_API_KEY=sk-...
 export PROMPTSHIELD_LLM_MODEL=meta-llama/llama-3-8b-instruct
-export PROMPTSHIELD_EMBEDDING_MODEL=openai/text-embedding-3-small
+export PROMPTSHIELD_EMBEDDING_MODEL=baai/bge-large-en-v1.5
 ```
 
 ### Python Library

@@ -93,7 +93,7 @@ following environment variables:
 |-----------------------------------|----------------|-------------------------------------------|
 | `PROMPTSHIELD_LLM_MODEL`          | `"unknown"`    | Records which LLM was active during the run |
 | `PROMPTSHIELD_EMBEDDING_MODEL`    | `"unknown"`    | Records which embedding model was active |
-| `PROMPTSHIELD_CONFIDENCE_THRESHOLD` | `"0.42"`        | Records the detection threshold          |
+| `PROMPTSHIELD_CONFIDENCE_THRESHOLD` | `"0.65"`        | Records the detection threshold          |
 
 The snapshot is printed to the console in a "Runtime Configuration" section at startup
 and included in `benchmark_summary.json` under the `runtime_config` key. This ensures

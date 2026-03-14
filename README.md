@@ -161,13 +161,13 @@ provider:
 
 **Supported model prefixes:**
 - `sentence-transformers/` — HuggingFace sentence-transformers models (e.g., `all-MiniLM-L6-v2`, `all-mpnet-base-v2`)
-- `BAAI/` — BAAI embedding models (e.g., `BAAI/bge-small-en-v1.5`)
+- `baai/` — BAAI embedding models (e.g., `BAAI/bge-small-en-v1.5`)
 - `intfloat/` — Intfloat embedding models
 
 **Popular choices for security detection:**
 - `sentence-transformers/all-MiniLM-L6-v2` — Fast, lightweight, good for semantic similarity (~80MB)
 - `sentence-transformers/all-mpnet-base-v2` — Slower but more accurate (~420MB)
-- `BAAI/bge-small-en-v1.5` — Specialized for semantic search (~130MB)
+- `baai/bge-small-en-v1.5` — Specialized for semantic search (~130MB)
 
 Models are automatically downloaded on first use and cached in memory for subsequent calls.
 
@@ -225,7 +225,7 @@ promptshield-benchmark sweep
 promptshield-benchmark sweep --models-embedding "openai/text-embedding-3-small,google/gemini-embedding-001"
 
 # Custom thresholds
-promptshield-benchmark sweep --thresholds "0.40,0.42,0.45,0.50,0.60"
+promptshield-benchmark sweep --thresholds "0.40,0.45,0.50,0.60"
 
 # Override the LLM fallback model for all combinations
 promptshield-benchmark sweep --models-llm "meta-llama/llama-3-8b-instruct"
@@ -233,7 +233,7 @@ promptshield-benchmark sweep --models-llm "meta-llama/llama-3-8b-instruct"
 # Full custom sweep
 promptshield-benchmark sweep \
   --models-embedding "openai/text-embedding-3-small,google/gemini-embedding-001" \
-  --thresholds "0.40,0.42,0.45,0.50,0.60" \
+  --thresholds "0.40,0.45,0.50,0.65" \
   --models-llm "meta-llama/llama-3-8b-instruct,meta-llama/llama-3.3-70b-instruct"
 ```
 
@@ -241,7 +241,7 @@ promptshield-benchmark sweep \
 - `openai/text-embedding-3-small`
 - `google/gemini-embedding-001`
 
-**Default thresholds** (when `--thresholds` is omitted): `0.40, 0.42, 0.45, 0.50, 0.60`
+**Default thresholds** (when `--thresholds` is omitted): `0.40, 0.50, 0.60`
 
 The sweep prints a ranked comparison table at the end, sorted by a **composite score**:
 
@@ -250,6 +250,16 @@ composite = recall − (2 × fpr)
 ```
 
 False positives are penalised twice as heavily as missed attacks, reflecting the real-world cost of blocking legitimate users. Full results (including per-combination metrics) are saved to `benchmarks/sweep_results.json` (gitignored).
+
+## Recommendations
+### Models
+- for embedding: 
+  - `baai/bge-large-en-v1.5` (0.65 threshold)
+  - `google/gemini-embedding-001` (0.60 threshold)
+  - `openai/text-embedding-3-small` (0.42 threshold)
+- for LLM:
+  - `meta-llama/llama-3-8b-instruct`
+  - `meta-llama/llama-3.3-70b-instruct`
 
 ## Roadmap
 

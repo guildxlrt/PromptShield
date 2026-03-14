@@ -22,7 +22,7 @@ A maintainer wants to find the threshold that maximises recall while keeping fal
 
 **Why this priority**: Threshold selection directly affects the security/UX trade-off. Running ten separate benchmark invocations manually is error-prone and slow. A single automated sweep with a ranked output table removes that friction.
 
-**Independent Test**: Run `promptshield-benchmark sweep --thresholds "0.40,0.42,0.45"` and verify that (a) three benchmark runs execute, (b) a ranked table is printed to stdout, and (c) `benchmarks/sweep_results.json` is written with exactly three entries in `results`.
+**Independent Test**: Run `promptshield-benchmark sweep --thresholds "0.40,0.65,0.45"` and verify that (a) three benchmark runs execute, (b) a ranked table is printed to stdout, and (c) `benchmarks/sweep_results.json` is written with exactly three entries in `results`.
 
 **Acceptance Scenarios**:
 
@@ -135,8 +135,8 @@ A developer extends the benchmark runner with a new scan interface without modif
 
 - **FR-001**: `benchmarks/sweep.py` MUST be runnable as `promptshield-benchmark sweep` from the project root with no required arguments.
 - **FR-002**: `sweep.py` MUST accept `--models` (comma-separated string), `--thresholds` (comma-separated floats), `--llm` (model identifier string), and `--interface` (`lib` | `cli` | `http`) CLI flags.
-- **FR-003**: Default models when `--models` is not specified: `openai/text-embedding-3-small`, `google/gemini-embedding-001`.
-- **FR-004**: Default thresholds when `--thresholds` is not specified: `0.40`, `0.42`, `0.45`, `0.50`, `0.60`.
+- **FR-003**: Default models when `--models` is not specified: `baai/bge-large-en-v1.5`, `google/gemini-embedding-001`.
+- **FR-004**: Default thresholds when `--thresholds` is not specified: `0.40`, `0.65`, `0.45`, `0.50`, `0.60`.
 - **FR-005**: For each `(model, threshold)` combination, `sweep.py` MUST run the full benchmark pipeline (all 80 dataset prompts) and collect the same metrics that `run.py` produces.
 - **FR-006**: The in-memory embedding index MUST be reset (via `src.detection.vector_engine._index = None`) when the model changes between sweep combinations. It MUST NOT be reset between threshold changes of the same model.
 - **FR-007**: At the end of the sweep, `sweep.py` MUST print a ranked comparison table sorted by `composite = recall − (2 × fpr)`, descending.

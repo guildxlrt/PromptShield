@@ -12,7 +12,7 @@
 
 ## Requirement Clarity & Measurability
 - [x] CHK005 - Is the performance requirement of "< 500ms" explicitly tied to a specific percentile (e.g., p95, p99) or is it a hard limit? [Clarity, Spec §SC-001]
-- [x] CHK006 - Is the definition of "ambiguous prompt" (triggering LLM fallback) mathematically defined (e.g., confidence < 0.42)? [Measurability, Spec §FR-006]
+- [x] CHK006 - Is the definition of "ambiguous prompt" (triggering LLM fallback) mathematically defined (e.g., confidence < 0.65)? [Measurability, Spec §FR-006]
 - [x] CHK007 - Are the rate limits (10/min, 100/min) explicitly defined as sliding window or token bucket in the requirements? [Clarity, Spec §FR-009]
 
 ## Scenario & Edge Case Coverage

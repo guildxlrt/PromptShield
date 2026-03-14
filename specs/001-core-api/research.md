@@ -15,12 +15,12 @@
 ## Phase 0: Outline & Research
 
 ### 1. Vector Database Integration (Local ChromaDB)
-- **Decision**: Use `chromadb` with a custom embedding function calling OpenRouter's embedding endpoint (`openai/text-embedding-3-small`).
+- **Decision**: Use `chromadb` with a custom embedding function calling OpenRouter's embedding endpoint (`baai/bge-large-en-v1.5`).
 - **Rationale**: Free tier memory limits on Render/Railway make local models (like `sentence-transformers`) non-viable. Calling a remote embedding API keeps the memory footprint minimal while maintaining the < $50 monthly budget constraint.
 - **Alternatives considered**: sentence-transformers (rejected due to memory limits), FAISS (too low-level), Pinecone (expensive).
 
 ### 2. LLM Fallback (OpenRouter API)
-- **Decision**: Use `httpx` to make async calls to OpenRouter using a fast, cheap model (e.g., `meta-llama/llama-3-8b-instruct` or a similar <$0.10/1M token model) as a fallback when confidence is < 0.42.
+- **Decision**: Use `httpx` to make async calls to OpenRouter using a fast, cheap model (e.g., `meta-llama/llama-3-8b-instruct` or a similar <$0.10/1M token model) as a fallback when confidence is < 0.65.
 - **Rationale**: OpenRouter allows dynamic model swapping without changing API integration code. Async calls ensure the FastAPI loop is not blocked during the < 2s response window.
 - **Alternatives considered**: OpenAI direct (more expensive, vendor lock-in), local LLM execution (impossible on Free Tier Render/Railway due to memory limits).
 

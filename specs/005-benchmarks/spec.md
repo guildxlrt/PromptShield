@@ -80,7 +80,7 @@ A maintainer reviews the runtime configuration snapshot to verify which embeddin
 - **Ambiguous prompts**: The 10 ambiguous prompts are never evaluated for correctness. `correct` is `None` for these rows in the CSV and they are reported only under `ambiguous_distribution` in the JSON summary.
 - **Gitignored outputs**: `benchmark_results.csv` and `benchmark_summary.json` are listed in `.gitignore`. They are ephemeral artefacts of a local run and MUST NOT be committed.
 - **Embedding index cold start**: The first prompt in a run triggers the NumPy index build, which embeds all 40 examples from `attack_patterns.json`. Its measured latency will be anomalously high and should not be read as representative of steady-state embedding performance.
-- **Unset config variables**: If environment variables are not set, the benchmark does not fail — `get_runtime_config()` returns sentinel values (`"unknown"` or `"0.42"`) and the user is expected to check the startup console output or the JSON to identify the actual config.
+- **Unset config variables**: If environment variables are not set, the benchmark does not fail — `get_runtime_config()` returns sentinel values (`"unknown"` or `"0.65"`) and the user is expected to check the startup console output or the JSON to identify the actual config.
 
 ## Requirements *(mandatory)*
 
