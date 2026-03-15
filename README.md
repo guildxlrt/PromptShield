@@ -72,7 +72,7 @@ You can configure PromptShield via CLI flags, environment variables, or a `.prom
 PROMPTSHIELD_API_KEY=sk-...                                    # Your OpenRouter API key
 PROMPTSHIELD_BASE_URL=https://openrouter.ai/api/v1             # (optional) API provider URL
 PROMPTSHIELD_LLM_MODEL=meta-llama/llama-3-8b-instruct           # LLM for fallback evaluation
-PROMPTSHIELD_EMBEDDING_MODEL=openai/text-embedding-3-small     # Embedding model for vector layer
+PROMPTSHIELD_EMBEDDING_MODEL=baai/bge-large-en-v1.5     # Embedding model for vector layer
 PROMPTSHIELD_CONFIDENCE_THRESHOLD=0.6                          # (optional) Detection threshold [0.0–1.0]
 ```
 
@@ -222,7 +222,7 @@ Run a grid search over multiple `(embedding_model, llm_model, threshold)` combin
 promptshield-benchmark sweep
 
 # Custom models
-promptshield-benchmark sweep --models-embedding "openai/text-embedding-3-small,google/gemini-embedding-001"
+promptshield-benchmark sweep --models-embedding "baai/bge-large-en-v1.5,google/gemini-embedding-001"
 
 # Custom thresholds
 promptshield-benchmark sweep --thresholds "0.40,0.45,0.50,0.60"
@@ -230,15 +230,18 @@ promptshield-benchmark sweep --thresholds "0.40,0.45,0.50,0.60"
 # Override the LLM fallback model for all combinations
 promptshield-benchmark sweep --models-llm "meta-llama/llama-3-8b-instruct"
 
+# Re-run combinations that failed in the previous sweep
+promptshield-benchmark sweep --rerun-failed
+
 # Full custom sweep
 promptshield-benchmark sweep \
-  --models-embedding "openai/text-embedding-3-small,google/gemini-embedding-001" \
+  --models-embedding "baai/bge-large-en-v1.5,google/gemini-embedding-001" \
   --thresholds "0.40,0.45,0.50,0.65" \
   --models-llm "meta-llama/llama-3-8b-instruct,meta-llama/llama-3.3-70b-instruct"
 ```
 
 **Default models** (when `--models-embedding` is omitted):
-- `openai/text-embedding-3-small`
+- `baai/bge-large-en-v1.5`
 - `google/gemini-embedding-001`
 
 **Default thresholds** (when `--thresholds` is omitted): `0.40, 0.50, 0.60`

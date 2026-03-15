@@ -1,5 +1,7 @@
 import asyncio
+import json
 import sys
+from pathlib import Path
 from typing import Any, Optional
 
 import typer
@@ -145,6 +147,63 @@ async def _run_sweep(
     return ranked
 
 
+async def _check_results_exist() -> Optional[dict[str, Any]]:
+    path = Path("benchmarks/sweep_results.json")
+    if not path.exists():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+async def _rerun_sweep() -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    sweep_results_json = await _check_results_exist()
+
+    if not sweep_results_json:
+        print("No results found. Run `promptshield benchmark sweep` to generate results.")
+        return [], {}
+
+    all_results = sweep_results_json.get("results", [])
+    sweep_config = sweep_results_json.get("sweep_config", {})
+
+    results_with_error = [r for r in all_results if "error" in r.get("full_metrics", {})]
+
+    if not results_with_error:
+        print("No errors found. Results are up to date.")
+        return all_results, sweep_config
+
+    new_results: list[dict[str, Any]] = []
+
+    for r in all_results:
+        if "error" not in r.get("full_metrics", {}):
+            new_results.append(r)
+
+    combo_idx = 1
+    total_failed = len(results_with_error)
+    for result in results_with_error:
+        model = result["model"]
+        threshold = result["threshold"]
+        llm_model = result.get("llm_model")
+        if llm_model == "(default)":
+            llm_model = None
+
+        try:
+            entry = await _run_combination(
+                model=model,
+                threshold=threshold,
+                llm_model=llm_model,
+                combo_index=combo_idx,
+                total_combos=total_failed,
+                dataset=DATASET,
+            )
+            new_results.append(entry)
+        except Exception as e:
+            print(f"Error rerunning combination model={model!r} llm={llm_model!r} threshold={threshold}: {e}")
+            new_results.append(result)
+        combo_idx += 1
+
+    ranked = sorted(new_results, key=lambda x: x["composite"], reverse=True)
+    return ranked, sweep_config
+
+
 @app.command()
 def run():
     """Run a single benchmark against current config."""
@@ -163,6 +222,7 @@ def sweep(
     models_llm: Optional[str] = typer.Option(
         None, help="Comma-separated LLM models to test"
     ),
+    rerun_failed: bool = typer.Option(False, help="Rerun failed combinations"),
 ):
     """Sweep multiple (embedding_model, llm_model, threshold) combinations."""
     models_list = (
@@ -180,6 +240,13 @@ def sweep(
         llms_list = [m.strip() for m in models_llm.split(",") if m.strip()]
     else:
         llms_list = [None]
+
+    if rerun_failed:
+        ranked, sweep_config = asyncio.run(_rerun_sweep())
+        if ranked:
+            print_ranked_table(ranked)
+            save_sweep_results(ranked, sweep_config)
+        return
 
     sweep_config = {
         "models": models_list,

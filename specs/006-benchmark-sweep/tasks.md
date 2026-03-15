@@ -97,3 +97,4 @@
 - [x] Fix 2: Fix CLI interface `ModuleNotFoundError` by invoking via `sys.executable, "-m", "src.cli.main"`.
 - [x] Fix 3: Fix LLM verdict normalization in `src/detection/llm_engine.py` (mapping "block" to "blocked").
 - [x] Fix 4: Refactor benchmark tooling to expose a single CLI entry point `promptshield-benchmark` with `run` and `sweep` subcommands, completely remove `benchmarks/interfaces`, update README and speckit to document `promptshield-benchmark` as canonical usage.
+- [x] Fix 5: Add `--rerun-failed` flag to `sweep` command to re-evaluate combinations that previously failed.
