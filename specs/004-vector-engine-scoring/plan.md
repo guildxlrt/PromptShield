@@ -9,7 +9,7 @@ Replaces top-3 average with np.argmax to match original ChromaDB
 behavior. Averaging was diluting confidence scores and causing
 attacks to fall below detection threshold.
 
-**Status Note (2025)**: FR-001 (top-1 nearest neighbor) is ✅ **implemented** in `promptshield/detection/vector_engine.py` (see `np.argmax(scores)`). FR-002 (threshold recalibration) is ⚠️ **deferred** — the confidence threshold remains at the default 0.65, pending manual calibration against measured `text-embedding-3-small` score distributions. See benchmark results for current detection accuracy.
+**Status Note (2025)**: FR-001 (top-1 nearest neighbor) is ✅ **implemented** in `promptshield/detection/vector_engine.py` (see `np.argmax(scores)`). FR-002 (threshold recalibration) is ⚠️ **deferred** — the confidence threshold remains at the default 0.60, pending manual calibration against measured `text-embedding-3-small` score distributions. See benchmark results for current detection accuracy.
 
 ## Technical Context
 - Target: `promptshield/detection/vector_engine.py` and `promptshield/config.py` (or similar).

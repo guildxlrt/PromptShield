@@ -236,7 +236,7 @@ promptshield-benchmark sweep --rerun-failed
 # Full custom sweep
 promptshield-benchmark sweep \
   --models-embedding "baai/bge-large-en-v1.5,google/gemini-embedding-001" \
-  --thresholds "0.40,0.45,0.50,0.65" \
+  --thresholds "0.40,0.60" \
   --models-llm "meta-llama/llama-3-8b-instruct,meta-llama/llama-3.3-70b-instruct"
 ```
 
@@ -257,9 +257,9 @@ False positives are penalised twice as heavily as missed attacks, reflecting the
 ## Recommendations
 ### Models
 - for embedding: 
-  - `baai/bge-large-en-v1.5` (0.65 threshold)
-  - `google/gemini-embedding-001` (0.60 threshold)
-  - `openai/text-embedding-3-small` (0.42 threshold)
+  - `baai/bge-large-en-v1.5` (advised threshold: 0.6)
+  - `google/gemini-embedding-001` (advised threshold: 0.6)
+  - `openai/text-embedding-3-small` (advised threshold: 0.42)
 - for LLM:
   - `meta-llama/llama-3-8b-instruct`
   - `meta-llama/llama-3.3-70b-instruct`

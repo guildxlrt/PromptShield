@@ -14,7 +14,7 @@ class ProviderConfig(BaseModel):
 
 
 class DetectionConfig(BaseModel):
-    confidence_threshold: float = 0.65
+    confidence_threshold: float = 0.60
     max_prompt_length: int = 10000
 
 

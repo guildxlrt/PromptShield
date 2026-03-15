@@ -264,7 +264,7 @@ timeout), the sweep records:
 ```json
 {
   "model": "...",
-  "threshold": 0.65,
+  "threshold": 0.60,
   "composite": -2.0,
   "full_metrics": { "error": "<exception message>" }
 }
@@ -289,7 +289,7 @@ flaky API call during a 10-combination sweep does not discard all results.
 {
   "sweep_config": {
     "models": ["baai/bge-large-en-v1.5", "google/gemini-embedding-001"],
-    "thresholds": [0.40, 0.65, 0.45, 0.50, 0.60],
+    "thresholds": [0.40, 0.60],
     "llm_model": "(from config)",
     "interface": "lib"
   },
@@ -297,7 +297,7 @@ flaky API call during a 10-combination sweep does not discard all results.
     {
       "rank": 1,
       "model": "baai/bge-large-en-v1.5",
-      "threshold": 0.65,
+      "threshold": 0.60,
       "recall": 0.9750,
       "fpr": 0.0000,
       "flag_rate": 0.0375,
@@ -355,7 +355,7 @@ promptshield-benchmark sweep
 promptshield-benchmark sweep --models "baai/bge-large-en-v1.5,google/gemini-embedding-001"
 
 # Custom thresholds:
-promptshield-benchmark sweep --thresholds "0.40,0.65,0.45,0.50,0.60"
+promptshield-benchmark sweep --thresholds "0.40,0.60"
 
 # Custom LLM for fallback layer:
 promptshield-benchmark sweep --llm "meta-llama/llama-3-8b-instruct"
@@ -363,7 +363,7 @@ promptshield-benchmark sweep --llm "meta-llama/llama-3-8b-instruct"
 # Full custom sweep:
 promptshield-benchmark sweep \
   --models "baai/bge-large-en-v1.5,google/gemini-embedding-001" \
-  --thresholds "0.40,0.65,0.45,0.50,0.60" \
+  --thresholds "0.40,0.60" \
   --llm "meta-llama/llama-3-8b-instruct"
 
 # Using the CLI interface:

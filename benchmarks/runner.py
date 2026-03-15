@@ -24,7 +24,7 @@ def get_runtime_config() -> dict:
         "promptshield_embedding_model": os.getenv(
             "PROMPTSHIELD_EMBEDDING_MODEL", "unknown"
         ),
-        "confidence_threshold": os.getenv("PROMPTSHIELD_CONFIDENCE_THRESHOLD", "0.65"),
+        "confidence_threshold": os.getenv("PROMPTSHIELD_CONFIDENCE_THRESHOLD", "0.60"),
     }
 
 

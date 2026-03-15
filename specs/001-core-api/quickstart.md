@@ -66,7 +66,7 @@ provider:
   embedding_model: baai/bge-large-en-v1.5
 
 detection:
-  confidence_threshold: 0.65
+  confidence_threshold: 0.60
   max_prompt_length: 10000
 
 server:

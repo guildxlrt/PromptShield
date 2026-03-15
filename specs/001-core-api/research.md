@@ -20,7 +20,7 @@
 - **Alternatives considered**: sentence-transformers (rejected due to memory limits), FAISS (too low-level), Pinecone (expensive).
 
 ### 2. LLM Fallback (OpenRouter API)
-- **Decision**: Use `httpx` to make async calls to OpenRouter using a fast, cheap model (e.g., `meta-llama/llama-3-8b-instruct` or a similar <$0.10/1M token model) as a fallback when confidence is < 0.65.
+- **Decision**: Use `httpx` to make async calls to OpenRouter using a fast, cheap model (e.g., `meta-llama/llama-3-8b-instruct` or a similar <$0.10/1M token model) as a fallback when confidence is < 0.60.
 - **Rationale**: OpenRouter allows dynamic model swapping without changing API integration code. Async calls ensure the FastAPI loop is not blocked during the < 2s response window.
 - **Alternatives considered**: OpenAI direct (more expensive, vendor lock-in), local LLM execution (impossible on Free Tier Render/Railway due to memory limits).
 

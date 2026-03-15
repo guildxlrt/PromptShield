@@ -1,4 +1,4 @@
-Note (March 2026) — FR-002 “Threshold recalibration based on false positive feedback loop” has been **explicitly deferred** (see plan.md). V1 uses a configurable fixed threshold (0.65 by default).
+Note (March 2026) — FR-002 “Threshold recalibration based on false positive feedback loop” has been **explicitly deferred** (see plan.md). V1 uses a configurable fixed threshold (0.60 by default).
 
 # Feature Specification: Fix vector engine scoring
 
