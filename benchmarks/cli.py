@@ -148,7 +148,7 @@ async def _run_sweep(
 
 
 async def _check_results_exist() -> Optional[dict[str, Any]]:
-    path = Path("benchmarks/sweep_results.json")
+    path = Path("benchmark_results/sweep_results.json")
     if not path.exists():
         return None
     return json.loads(path.read_text(encoding="utf-8"))
@@ -158,13 +158,17 @@ async def _rerun_sweep() -> tuple[list[dict[str, Any]], dict[str, Any]]:
     sweep_results_json = await _check_results_exist()
 
     if not sweep_results_json:
-        print("No results found. Run `promptshield benchmark sweep` to generate results.")
+        print(
+            "No results found. Run `promptshield benchmark sweep` to generate results."
+        )
         return [], {}
 
     all_results = sweep_results_json.get("results", [])
     sweep_config = sweep_results_json.get("sweep_config", {})
 
-    results_with_error = [r for r in all_results if "error" in r.get("full_metrics", {})]
+    results_with_error = [
+        r for r in all_results if "error" in r.get("full_metrics", {})
+    ]
 
     if not results_with_error:
         print("No errors found. Results are up to date.")
@@ -196,7 +200,9 @@ async def _rerun_sweep() -> tuple[list[dict[str, Any]], dict[str, Any]]:
             )
             new_results.append(entry)
         except Exception as e:
-            print(f"Error rerunning combination model={model!r} llm={llm_model!r} threshold={threshold}: {e}")
+            print(
+                f"Error rerunning combination model={model!r} llm={llm_model!r} threshold={threshold}: {e}"
+            )
             new_results.append(result)
         combo_idx += 1
 
