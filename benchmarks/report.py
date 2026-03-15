@@ -8,7 +8,7 @@ from tabulate import tabulate
 
 from .runner import BenchmarkResult
 
-SWEEP_RESULTS_PATH: Path = Path("benchmarks/sweep_results.json")
+SWEEP_RESULTS_PATH: Path = Path("benchmark_results/sweep_results.json")
 
 # ---------------------------------------------------------------------------
 # Persistence
@@ -16,14 +16,17 @@ SWEEP_RESULTS_PATH: Path = Path("benchmarks/sweep_results.json")
 
 
 def save_csv(
-    results: list[BenchmarkResult], path: str = "benchmark_results.csv"
+    results: list[BenchmarkResult],
+    path: str = "benchmark_results/benchmark_results.csv",
 ) -> None:
     df = pd.DataFrame([asdict(r) for r in results])
     df.to_csv(path, index=False)
     print(f"\n✓ Raw results saved to {path}")
 
 
-def save_json(metrics: dict, path: str = "benchmark_summary.json") -> None:
+def save_json(
+    metrics: dict, path: str = "benchmark_results/benchmark_summary.json"
+) -> None:
     summary_path = Path(path)
     summary_path.write_text(json.dumps(metrics, indent=2, ensure_ascii=False))
     print(f"✓ Summary saved to {path}")
